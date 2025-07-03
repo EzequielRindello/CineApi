@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: movie_app_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: MovieAppDB
+      POSTGRES_USER: movie_user
+      POSTGRES_PASSWORD: movie_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - movie_network
+
+volumes:
+  postgres_data:
+
+networks:
+  movie_network:
