@@ -15,7 +15,20 @@ namespace CineApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // configure relations
+            // keys like auto-increment
+            modelBuilder.Entity<Director>()
+                .Property(d => d.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Movie>()
+                .Property(m => m.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<MovieFunction>()
+                .Property(mf => mf.Id)
+                .ValueGeneratedOnAdd();
+
+            // configurate relations
             modelBuilder.Entity<Movie>()
                 .HasOne(m => m.Director)
                 .WithMany(d => d.Movies)
@@ -28,7 +41,7 @@ namespace CineApi.Data
                 .HasForeignKey(mf => mf.MovieId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // configure indexs
+            // configurate indexs
             modelBuilder.Entity<Movie>()
                 .HasIndex(m => m.Title);
 

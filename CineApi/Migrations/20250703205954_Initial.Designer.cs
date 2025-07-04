@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CineApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250703145122_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250703205954_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -45,9 +45,15 @@ namespace CineApi.Services
 
         public async Task<MovieFunctionDto> CreateFunctionAsync(CreateMovieFunctionRequest request)
         {
+            var movieExists = await _context.Movies.AnyAsync(m => m.Id == request.MovieId);
+            if (!movieExists)
+            {
+                throw new ArgumentException("Movie not found");
+            }
+
             var function = new MovieFunction
             {
-                Date = request.Date,
+                Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
                 Time = request.Time,
                 Price = request.Price,
                 MovieId = request.MovieId
@@ -56,7 +62,8 @@ namespace CineApi.Services
             _context.MovieFunctions.Add(function);
             await _context.SaveChangesAsync();
 
-            return await GetFunctionByIdAsync(function.Id);
+            var createdFunction = await GetFunctionByIdAsync(function.Id);
+            return createdFunction!;
         }
 
         public async Task<MovieFunctionDto?> UpdateFunctionAsync(int id, UpdateMovieFunctionRequest request)
@@ -65,7 +72,13 @@ namespace CineApi.Services
             if (function == null)
                 return null;
 
-            function.Date = request.Date;
+            var movieExists = await _context.Movies.AnyAsync(m => m.Id == request.MovieId);
+            if (!movieExists)
+            {
+                throw new ArgumentException("Movie not found");
+            }
+
+            function.Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc);
             function.Time = request.Time;
             function.Price = request.Price;
             function.MovieId = request.MovieId;
@@ -112,6 +125,5 @@ namespace CineApi.Services
                 } : null
             };
         }
-
     }
 }
