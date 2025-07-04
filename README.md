@@ -49,29 +49,12 @@ dotnet ef database update
 - `GET /api/movies` - Obtener todas las películas
 - `GET /api/movies/{id}` - Obtener una película por ID
 
-## Estructura del proyecto
+## Auth 
 
-```
-MovieApp/
-├── Entity/                 # Entidades de la base de datos
-│   ├── Director.cs
-│   ├── Movie.cs
-│   └── MovieFunction.cs
-├── Models/                 # DTOs y modelos de request/response
-│   ├── MovieDto.cs
-│   └── MovieFunctionDto.cs
-├── Services/               # Lógica de negocio
-│   ├── MovieService.cs
-│   └── MovieFunctionService.cs
-├── Controllers/            # Controladores de la API
-│   ├── MovieController.cs
-│   └── MovieFunctionController.cs
-├── Data/                   # Context de Entity Framework
-│   └── AppDbContext.cs
-├── Program.cs              # Configuración de la aplicación
-├── appsettings.json        # Configuración de la aplicación
-└── docker-compose.yml      # Configuración de Docker
-```
+- `GET /api/auth//{id}` - 
+- `POST /api/auth` - 
+- `PUT /api/auth/{id}` - 
+- `DELETE /api/auth/{id}` - 
 
 ## Ejemplo de uso
 
@@ -81,11 +64,11 @@ MovieApp/
 curl -X POST https://localhost:5001/api/functions \
   -H "Content-Type: application/json" \
   -d '{
-    "movieId": 1,
-    "date": "2025-06-26T00:00:00",
-    "time": "14:00:00",
-    "price": 2500
-  }'
+    "date": "2025-07-03T00:00:00Z",
+    "time": "14:30:00",
+    "price": 12.50,
+    "movieId": 1
+}'
 ```
 
 ## Configuración para el Frontend
