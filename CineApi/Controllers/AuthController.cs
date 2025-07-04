@@ -1,5 +1,6 @@
 ﻿using CineApi.Models;
 using CineApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CineApi.Controllers
@@ -54,6 +55,27 @@ namespace CineApi.Controllers
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpGet("user/{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            try
+            {
+                var user = await _authService.GetUserByIdAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                return Ok(user);
             }
             catch (Exception ex)
             {

@@ -14,6 +14,7 @@ namespace CineApi.Services
         Task<AuthResponseDto> LoginAsync(LoginDto loginDto);
         Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto);
         Task<bool> UserExistsAsync(string email);
+        Task<UserDto> GetUserByIdAsync(int id);
     }
 
     public class AuthService : IAuthService
@@ -88,6 +89,25 @@ namespace CineApi.Services
         public async Task<bool> UserExistsAsync(string email)
         {
             return await _context.Users.AnyAsync(u => u.Email == email);
+        }
+
+        public async Task<UserDto> GetUserByIdAsync(int id)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email
+            };
         }
 
         private string GenerateJwtToken(User user)
