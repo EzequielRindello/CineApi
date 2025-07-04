@@ -12,6 +12,7 @@ namespace CineApi.Data
         public DbSet<Director> Directors { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<MovieFunction> MovieFunctions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,10 @@ namespace CineApi.Data
 
             modelBuilder.Entity<MovieFunction>()
                 .Property(mf => mf.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Id)
                 .ValueGeneratedOnAdd();
 
             // configurate relations
@@ -47,6 +52,10 @@ namespace CineApi.Data
 
             modelBuilder.Entity<MovieFunction>()
                 .HasIndex(mf => mf.Date);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }
