@@ -1,5 +1,6 @@
 ﻿using CineApi.Models;
 using CineApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CineApi.Controllers
@@ -33,6 +34,7 @@ namespace CineApi.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<MovieFunctionDto>> CreateFunction(CreateMovieFunctionRequest request)
         {
             if (!ModelState.IsValid)
@@ -50,6 +52,7 @@ namespace CineApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult<MovieFunctionDto>> UpdateFunction(int id, UpdateMovieFunctionRequest request)
         {
             if (!ModelState.IsValid)
@@ -70,6 +73,7 @@ namespace CineApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult> DeleteFunction(int id)
         {
             var deleted = await _movieFunctionService.DeleteFunctionAsync(id);
