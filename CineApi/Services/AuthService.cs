@@ -96,10 +96,7 @@ namespace CineApi.Services
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == id);
 
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             return new UserDto
             {
@@ -133,12 +130,12 @@ namespace CineApi.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private string HashPassword(string password)
+        private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
-        private bool VerifyPassword(string password, string hash)
+        private static bool VerifyPassword(string password, string hash)
         {
             return BCrypt.Net.BCrypt.Verify(password, hash);
         }
