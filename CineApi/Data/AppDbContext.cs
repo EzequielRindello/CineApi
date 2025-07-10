@@ -12,10 +12,28 @@ namespace CineApi.Data
         public DbSet<Director> Directors { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<MovieFunction> MovieFunctions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // configure relations
+            // keys like auto-increment
+            modelBuilder.Entity<Director>()
+                .Property(d => d.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Movie>()
+                .Property(m => m.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<MovieFunction>()
+                .Property(mf => mf.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Id)
+                .ValueGeneratedOnAdd();
+
+            // configurate relations
             modelBuilder.Entity<Movie>()
                 .HasOne(m => m.Director)
                 .WithMany(d => d.Movies)
@@ -28,12 +46,16 @@ namespace CineApi.Data
                 .HasForeignKey(mf => mf.MovieId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // configure indexs
+            // configurate indexs
             modelBuilder.Entity<Movie>()
                 .HasIndex(m => m.Title);
 
             modelBuilder.Entity<MovieFunction>()
                 .HasIndex(mf => mf.Date);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }

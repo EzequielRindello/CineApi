@@ -5,6 +5,8 @@ namespace CineApi.Entity
 {
     public class MovieFunction
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required] public DateTime Date { get; set; }
