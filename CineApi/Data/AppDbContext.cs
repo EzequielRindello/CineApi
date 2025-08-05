@@ -1,6 +1,5 @@
 ﻿using CineApi.Entity;
 using Microsoft.EntityFrameworkCore;
-
 namespace CineApi.Data
 {
     public class AppDbContext : DbContext
@@ -8,11 +7,11 @@ namespace CineApi.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-
         public DbSet<Director> Directors { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<MovieFunction> MovieFunctions { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,6 +32,14 @@ namespace CineApi.Data
                 .Property(u => u.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<Reservation>()
+                .Property(r => r.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<User>()
+                .Property(e => e.Role)
+                .HasConversion<int>();
+
             // configurate relations
             modelBuilder.Entity<Movie>()
                 .HasOne(m => m.Director)
@@ -46,6 +53,18 @@ namespace CineApi.Data
                 .HasForeignKey(mf => mf.MovieId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Reservations)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.MovieFunction)
+                .WithMany(mf => mf.Reservations)
+                .HasForeignKey(r => r.MovieFunctionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // configurate indexs
             modelBuilder.Entity<Movie>()
                 .HasIndex(m => m.Title);
@@ -56,6 +75,9 @@ namespace CineApi.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            modelBuilder.Entity<Reservation>()
+                .HasIndex(r => new { r.UserId, r.MovieFunctionId });
 
             base.OnModelCreating(modelBuilder);
         }

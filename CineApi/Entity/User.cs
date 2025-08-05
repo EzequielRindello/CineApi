@@ -24,5 +24,11 @@ namespace CineApi.Entity
 
         [Required]
         public string PasswordHash { get; set; }
+
+        [Required]
+        public UserRole Role { get; set; } = UserRole.User;
+
+        // Navigation property
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     }
 }

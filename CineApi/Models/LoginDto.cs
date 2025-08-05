@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CineApi.Entity;
+using System.ComponentModel.DataAnnotations;
 
 namespace CineApi.Models
 {
@@ -43,5 +44,46 @@ namespace CineApi.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
+        public string Role { get; set; }
+    }
+
+    public class CreateUserDto
+    {
+        [Required]
+        [StringLength(50)]
+        public string FirstName { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string LastName { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [MinLength(6)]
+        public string Password { get; set; }
+
+        [Required]
+        public UserRole Role { get; set; }
+    }
+
+    public class UpdateUserDto
+    {
+        [Required]
+        [StringLength(50)]
+        public string FirstName { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string LastName { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        public UserRole Role { get; set; }
     }
 }

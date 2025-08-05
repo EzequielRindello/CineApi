@@ -1,4 +1,6 @@
-﻿namespace CineApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CineApi.Models
 {
     public class MovieDto
     {
@@ -16,5 +18,47 @@
         public int Id { get; set; }
         public string Name { get; set; }
         public string Nationality { get; set; }
+    }
+
+    public class CreateMovieDto
+    {
+        [Required]
+        [StringLength(300)]
+        public string Title { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string Type { get; set; }
+
+        [Required]
+        public string Poster { get; set; }
+
+        [Required]
+        [StringLength(1000)]
+        public string Description { get; set; }
+
+        [Required]
+        public int DirectorId { get; set; }
+    }
+
+    public class UpdateMovieDto
+    {
+        [Required]
+        [StringLength(300)]
+        public string Title { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string Type { get; set; }
+
+        [Required]
+        public string Poster { get; set; }
+
+        [Required]
+        [StringLength(1000)]
+        public string Description { get; set; }
+
+        [Required]
+        public int DirectorId { get; set; }
     }
 }

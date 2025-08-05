@@ -89,6 +89,27 @@ namespace CineApi.Data
 
             context.MovieFunctions.AddRange(functions);
             context.SaveChanges();
+
+            foreach (var function in functions)
+            {
+                function.TotalCapacity = 50;
+            }
+            context.SaveChanges();
+
+            if (!context.Users.Any())
+            {
+                var sysAdmin = new User
+                {
+                    FirstName = "System",
+                    LastName = "Administrator",
+                    Email = "admin@cinema.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password1!"),
+                    Role = UserRole.SysAdmin
+                };
+
+                context.Users.Add(sysAdmin);
+                context.SaveChanges();
+            }
         }
     }
 }
