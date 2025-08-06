@@ -31,5 +31,55 @@ namespace MovieApp.Controllers
 
             return Ok(movie);
         }
+
+        [HttpPost]
+        public async Task<ActionResult<MovieDto>> CreateMovie(CreateMovieDto request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var movie = await _movieService.CreateMovieAsync(request);
+                return CreatedAtAction(nameof(GetMovieById), new { id = movie.Id }, movie);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error creating movie", details = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMovie(int id, UpdateMovieDto request)
+        {
+            if (id != request.Id)
+                return BadRequest("Movie ID mismatch");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var movie = await _movieService.UpdateMovieAsync(request);
+                if (movie == null)
+                    return NotFound();
+                return Ok(movie);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error updating movie", details = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMovie(int id)
+        {
+            try
+            {
+                await _movieService.DeleteMovieAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error deleting movie", details = ex.Message });
+            }
+        }
     }
 }

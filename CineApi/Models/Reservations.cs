@@ -25,5 +25,19 @@ namespace CineApi.Models
             [Range(1, 4, ErrorMessage = "Ticket quantity must be between 1 and 4")]
             public int TicketQuantity { get; set; }
         }
+
+        public class UpdateReservationDto
+        {
+            [Required]
+            public int MovieFunctionId { get; set; }
+            [Required]
+            public int TicketQuantity { get; set; }
+            [Required]
+            public DateTime ReservationDate { get; set; }
+            [Required]
+            public decimal TotalAmount { get; set; }
+            public UserDto? User { get; set; }
+            public MovieFunctionDto? MovieFunction { get; set; }
+        }
     }
 }

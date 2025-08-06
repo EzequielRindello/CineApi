@@ -60,5 +60,8 @@ namespace CineApi.Models
 
         [Required]
         public int DirectorId { get; set; }
+
+        [Required]
+        public int Id { get; set; }
     }
 }

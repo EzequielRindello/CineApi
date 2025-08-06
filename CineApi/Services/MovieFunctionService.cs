@@ -28,6 +28,7 @@ namespace CineApi.Services
             var functions = await _context.MovieFunctions
                 .Include(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
+                .Include(mf => mf.Reservations)
                 .ToListAsync();
 
             return functions.Select(MapToDto);
@@ -38,6 +39,7 @@ namespace CineApi.Services
             var function = await _context.MovieFunctions
                 .Include(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
+                .Include(mf => mf.Reservations)
                 .FirstOrDefaultAsync(mf => mf.Id == id);
 
             return function != null ? MapToDto(function) : null;
@@ -51,7 +53,8 @@ namespace CineApi.Services
                 Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
                 Time = request.Time,
                 Price = request.Price,
-                MovieId = request.MovieId
+                MovieId = request.MovieId,
+                TotalCapacity = request.TotalCapacity
             };
 
             _context.MovieFunctions.Add(function);
@@ -103,6 +106,8 @@ namespace CineApi.Services
                 Time = function.Time,
                 Price = function.Price,
                 MovieId = function.MovieId,
+                TotalCapacity = function.TotalCapacity,
+                AvailableSeats = function.AvailableSeats,
                 Movie = function.Movie != null ? new MovieDto
                 {
                     Id = function.Movie.Id,

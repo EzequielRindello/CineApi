@@ -35,7 +35,8 @@ namespace CineApi.Migrations
                     FirstName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: false)
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -74,7 +75,8 @@ namespace CineApi.Migrations
                     Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Time = table.Column<TimeSpan>(type: "interval", nullable: false),
                     Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    MovieId = table.Column<int>(type: "integer", nullable: false)
+                    MovieId = table.Column<int>(type: "integer", nullable: false),
+                    TotalCapacity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -85,6 +87,35 @@ namespace CineApi.Migrations
                         principalTable: "Movies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Reservations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    MovieFunctionId = table.Column<int>(type: "integer", nullable: false),
+                    TicketQuantity = table.Column<int>(type: "integer", nullable: false),
+                    ReservationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reservations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Reservations_MovieFunctions_MovieFunctionId",
+                        column: x => x.MovieFunctionId,
+                        principalTable: "MovieFunctions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Reservations_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -108,6 +139,16 @@ namespace CineApi.Migrations
                 column: "Title");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Reservations_MovieFunctionId",
+                table: "Reservations",
+                column: "MovieFunctionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reservations_UserId_MovieFunctionId",
+                table: "Reservations",
+                columns: new[] { "UserId", "MovieFunctionId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
@@ -117,6 +158,9 @@ namespace CineApi.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Reservations");
+
             migrationBuilder.DropTable(
                 name: "MovieFunctions");
 

@@ -104,6 +104,9 @@ namespace CineApi.Migrations
                     b.Property<TimeSpan>("Time")
                         .HasColumnType("interval");
 
+                    b.Property<int>("TotalCapacity")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Date");
@@ -111,6 +114,38 @@ namespace CineApi.Migrations
                     b.HasIndex("MovieId");
 
                     b.ToTable("MovieFunctions");
+                });
+
+            modelBuilder.Entity("CineApi.Entity.Reservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MovieFunctionId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ReservationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TicketQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovieFunctionId");
+
+                    b.HasIndex("UserId", "MovieFunctionId");
+
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("CineApi.Entity.User", b =>
@@ -139,6 +174,9 @@ namespace CineApi.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -170,6 +208,25 @@ namespace CineApi.Migrations
                     b.Navigation("Movie");
                 });
 
+            modelBuilder.Entity("CineApi.Entity.Reservation", b =>
+                {
+                    b.HasOne("CineApi.Entity.MovieFunction", "MovieFunction")
+                        .WithMany("Reservations")
+                        .HasForeignKey("MovieFunctionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CineApi.Entity.User", "User")
+                        .WithMany("Reservations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("MovieFunction");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CineApi.Entity.Director", b =>
                 {
                     b.Navigation("Movies");
@@ -178,6 +235,16 @@ namespace CineApi.Migrations
             modelBuilder.Entity("CineApi.Entity.Movie", b =>
                 {
                     b.Navigation("MovieFunctions");
+                });
+
+            modelBuilder.Entity("CineApi.Entity.MovieFunction", b =>
+                {
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("CineApi.Entity.User", b =>
+                {
+                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }

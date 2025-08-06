@@ -64,27 +64,27 @@ namespace CineApi.Data
 
             var functions = new[]
             {
-                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(14,0,0), Price = 2500 },
-                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(17,30,0), Price = 3000 },
-                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(21,0,0), Price = 3500 },
-                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,27), DateTimeKind.Utc), Time = new TimeSpan(15,0,0), Price = 2500 },
-                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,27), DateTimeKind.Utc), Time = new TimeSpan(19,0,0), Price = 3200 },
+                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(14,0,0), Price = 2500 },
+                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(17,30,0), Price = 3000 },
+                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(21,0,0), Price = 3500 },
+                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,27), DateTimeKind.Utc), Time = new TimeSpan(15,0,0), Price = 2500 },
+                new MovieFunction { MovieId = movies[0].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,27), DateTimeKind.Utc), Time = new TimeSpan(19,0,0), Price = 3200 },
 
-                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(16,0,0), Price = 2200 },
-                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(19,30,0), Price = 2800 },
-                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,27), DateTimeKind.Utc), Time = new TimeSpan(14,30,0), Price = 2200 },
-                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,27), DateTimeKind.Utc), Time = new TimeSpan(18,0,0), Price = 2800 },
-                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,27), DateTimeKind.Utc), Time = new TimeSpan(21,30,0), Price = 3000 },
+                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(16,0,0), Price = 2200 },
+                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(19,30,0), Price = 2800 },
+                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,27), DateTimeKind.Utc), Time = new TimeSpan(14,30,0), Price = 2200 },
+                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,27), DateTimeKind.Utc), Time = new TimeSpan(18,0,0), Price = 2800 },
+                new MovieFunction { MovieId = movies[4].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,27), DateTimeKind.Utc), Time = new TimeSpan(21,30,0), Price = 3000 },
 
-                new MovieFunction { MovieId = movies[1].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(20,0,0), Price = 3200 },
-                new MovieFunction { MovieId = movies[1].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,27), DateTimeKind.Utc), Time = new TimeSpan(22,0,0), Price = 3500 },
+                new MovieFunction { MovieId = movies[1].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(20,0,0), Price = 3200 },
+                new MovieFunction { MovieId = movies[1].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,27), DateTimeKind.Utc), Time = new TimeSpan(22,0,0), Price = 3500 },
 
-                new MovieFunction { MovieId = movies[5].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(15,30,0), Price = 2000 },
-                new MovieFunction { MovieId = movies[5].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,27), DateTimeKind.Utc), Time = new TimeSpan(17,0,0), Price = 2200 },
+                new MovieFunction { MovieId = movies[5].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(15,30,0), Price = 2000 },
+                new MovieFunction { MovieId = movies[5].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,27), DateTimeKind.Utc), Time = new TimeSpan(17,0,0), Price = 2200 },
 
-                new MovieFunction { MovieId = movies[7].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(18,30,0), Price = 2800 },
-                new MovieFunction { MovieId = movies[7].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,26), DateTimeKind.Utc), Time = new TimeSpan(21,45,0), Price = 3200 },
-                new MovieFunction { MovieId = movies[7].Id, Date = DateTime.SpecifyKind(new DateTime(2025,6,27), DateTimeKind.Utc), Time = new TimeSpan(16,30,0), Price = 2600 }
+                new MovieFunction { MovieId = movies[7].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(18,30,0), Price = 2800 },
+                new MovieFunction { MovieId = movies[7].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,26), DateTimeKind.Utc), Time = new TimeSpan(21,45,0), Price = 3200 },
+                new MovieFunction { MovieId = movies[7].Id, Date = DateTime.SpecifyKind(new DateTime(2040,6,27), DateTimeKind.Utc), Time = new TimeSpan(16,30,0), Price = 2600 }
             };
 
             context.MovieFunctions.AddRange(functions);
