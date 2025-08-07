@@ -192,6 +192,10 @@ namespace CineApi.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null) return false;
 
+            // Id 1 will always correspond to SysAdmin
+            if (user.Id == 1)
+                throw new CannotDeleteSysAdminException();
+
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return true;
@@ -232,5 +236,12 @@ namespace CineApi.Services
         {
             return BCrypt.Net.BCrypt.Verify(password, hash);
         }
+
+        public class CannotDeleteSysAdminException : Exception
+        {
+            public CannotDeleteSysAdminException()
+                : base("Cannot delete the system administrator.") { }
+        }
+
     }
 }

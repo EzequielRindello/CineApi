@@ -2,6 +2,7 @@
 using CineApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static CineApi.Services.AuthService;
 
 namespace CineApi.Controllers
 {
@@ -168,9 +169,13 @@ namespace CineApi.Controllers
 
                 return Ok(new { message = "User deleted successfully" });
             }
+            catch (CannotDeleteSysAdminException ex)
+            {
+                return StatusCode(403, new { message = ex.Message });
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = "Internal server error" + ex });
             }
         }
     }
