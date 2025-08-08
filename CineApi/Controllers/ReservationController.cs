@@ -1,4 +1,5 @@
-﻿using CineApi.Services;
+﻿using CineApi.Models.Consts;
+using CineApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static CineApi.Models.Reservations;
@@ -30,7 +31,7 @@ namespace CineApi.Controllers
                 var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
                 if (userId == 0)
                 {
-                    return Unauthorized("Invalid token");
+                    return Unauthorized(ReservationValidationMessages.InvalidToken());
                 }
 
                 var result = await _reservationService.CreateReservationAsync(request, userId);
@@ -46,7 +47,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
             }
         }
 
@@ -58,7 +59,7 @@ namespace CineApi.Controllers
                 var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
                 if (userId == 0)
                 {
-                    return Unauthorized("Invalid token");
+                    return Unauthorized(ReservationValidationMessages.InvalidToken());
                 }
 
                 var reservations = await _reservationService.GetUserReservationsAsync(userId);
@@ -66,7 +67,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
             }
         }
 
@@ -81,7 +82,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
             }
         }
 
@@ -96,19 +97,19 @@ namespace CineApi.Controllers
                 var reservation = await _reservationService.GetReservationByIdAsync(id);
                 if (reservation == null)
                 {
-                    return NotFound(new { message = "Reservation not found" });
+                    return NotFound(new { message = ReservationValidationMessages.ReservationNotFound() });
                 }
 
                 if (reservation.UserId != userId && userRole != "SysAdmin" && userRole != "CineAdmin")
                 {
-                    return Forbid("You can only view your own reservations");
+                    return Forbid(ReservationValidationMessages.OnlyViewOwnReservations());
                 }
 
                 return Ok(reservation);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
             }
         }
 
@@ -125,13 +126,13 @@ namespace CineApi.Controllers
                 var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
                 if (userId == 0)
                 {
-                    return Unauthorized("Invalid token");
+                    return Unauthorized(ReservationValidationMessages.InvalidToken());
                 }
 
                 var result = await _reservationService.UpdateReservationAsync(id, request, userId);
                 if (result == null)
                 {
-                    return NotFound(new { message = "Reservation not found" });
+                    return NotFound(new { message = ReservationValidationMessages.ReservationNotFound() });
                 }
 
                 return Ok(result);
@@ -142,7 +143,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
             }
         }
 
@@ -154,16 +155,16 @@ namespace CineApi.Controllers
                 var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
                 if (userId == 0)
                 {
-                    return Unauthorized("Invalid token");
+                    return Unauthorized(ReservationValidationMessages.InvalidToken());
                 }
 
                 var success = await _reservationService.CancelReservationAsync(id, userId);
                 if (!success)
                 {
-                    return NotFound(new { message = "Reservation not found" });
+                    return NotFound(new { message = ReservationValidationMessages.ReservationNotFound() });
                 }
 
-                return Ok(new { message = "Reservation cancelled successfully" });
+                return Ok(new { message = ReservationValidationMessages.ReservationCancelledSuccessfully() });
             }
             catch (InvalidOperationException ex)
             {
@@ -171,7 +172,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
             }
         }
     }

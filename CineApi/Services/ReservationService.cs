@@ -1,6 +1,7 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
 using CineApi.Models;
+using CineApi.Models.Consts;
 using Microsoft.EntityFrameworkCore;
 using static CineApi.Models.Reservations;
 
@@ -33,15 +34,15 @@ namespace CineApi.Services
                 .FirstOrDefaultAsync(mf => mf.Id == request.MovieFunctionId);
 
             if (movieFunction == null)
-                throw new ArgumentException("Movie function not found");
+                throw new ArgumentException(FunctionValidationMessages.MovieFunctionNotFound());
 
             var availableSeats = movieFunction.AvailableSeats;
             if (availableSeats < request.TicketQuantity)
-                throw new InvalidOperationException($"Only {availableSeats} seats available");
+                throw new InvalidOperationException(FunctionValidationMessages.AvailableSeats(availableSeats));
 
             var functionDateTime = movieFunction.Date.Date + movieFunction.Time;
             if (functionDateTime <= DateTime.Now)
-                throw new InvalidOperationException("Cannot reserve tickets for past functions");
+                throw new InvalidOperationException(FunctionValidationMessages.PastFunction());
 
             var existingTicketsForFunction = await _context.Reservations
                 .Where(r => r.UserId == userId && r.MovieFunctionId == request.MovieFunctionId)
@@ -51,12 +52,13 @@ namespace CineApi.Services
 
             if (totalTicketsAfterReservation > MAX_TICKETS_PER_USER)
             {
-                var remainingTickets = MAX_TICKETS_PER_USER - existingTicketsForFunction;
                 throw new InvalidOperationException(
-                    $"Cannot reserve {request.TicketQuantity} tickets. " +
-                    $"Maximum {MAX_TICKETS_PER_USER} tickets per user per function. " +
-                    $"You already have {existingTicketsForFunction} tickets reserved. " +
-                    $"You can only reserve {remainingTickets} more ticket(s) for this function.");
+                    FunctionValidationMessages.MaxTicketsExceeded(
+                        request.TicketQuantity,
+                        MAX_TICKETS_PER_USER,
+                        existingTicketsForFunction
+                    )
+                );
             }
 
             var totalAmount = movieFunction.Price * request.TicketQuantity;
@@ -73,7 +75,7 @@ namespace CineApi.Services
             _context.Reservations.Add(reservation);
             await _context.SaveChangesAsync();
 
-            return await GetReservationByIdAsync(reservation.Id) ?? throw new InvalidOperationException("Failed to create reservation");
+            return await GetReservationByIdAsync(reservation.Id) ?? throw new InvalidOperationException(FunctionValidationMessages.FailedToCreate());
         }
 
         public async Task<UpdateReservationDto> UpdateReservationAsync(int id, UpdateReservationDto updateReservationDto, int userId)
@@ -83,7 +85,7 @@ namespace CineApi.Services
                 .FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
 
             if (reservation == null)
-                throw new ArgumentException("Reservation not found");
+                throw new ArgumentException(FunctionValidationMessages.ReservationNotFound());
 
             var existingTicketsForFunction = await _context.Reservations
                 .Where(r => r.UserId == userId && r.MovieFunctionId == reservation.MovieFunctionId && r.Id != id)
@@ -93,12 +95,13 @@ namespace CineApi.Services
 
             if (totalTicketsAfterUpdate > MAX_TICKETS_PER_USER)
             {
-                var remainingTickets = MAX_TICKETS_PER_USER - existingTicketsForFunction;
                 throw new InvalidOperationException(
-                    $"Cannot update to {updateReservationDto.TicketQuantity} tickets. " +
-                    $"Maximum {MAX_TICKETS_PER_USER} tickets per user per function. " +
-                    $"You have {existingTicketsForFunction} other tickets reserved for this function. " +
-                    $"You can only reserve up to {remainingTickets} ticket(s) for this reservation.");
+                    FunctionValidationMessages.MaxTicketsExceededOnUpdate(
+                        updateReservationDto.TicketQuantity,
+                        MAX_TICKETS_PER_USER,
+                        existingTicketsForFunction
+                    )
+                );
             }
 
             reservation.TicketQuantity = updateReservationDto.TicketQuantity;
@@ -160,7 +163,7 @@ namespace CineApi.Services
 
             var functionDateTime = reservation.MovieFunction.Date.Date + reservation.MovieFunction.Time;
             if (functionDateTime <= DateTime.Now.AddHours(1))
-                throw new InvalidOperationException("Cannot cancel reservations less than 1 hour before the function");
+                throw new InvalidOperationException(FunctionValidationMessages.CannotCancelOneHourBefore());
 
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();

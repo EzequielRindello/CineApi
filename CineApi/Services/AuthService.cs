@@ -1,6 +1,7 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
 using CineApi.Models;
+using CineApi.Models.Consts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -39,7 +40,7 @@ namespace CineApi.Services
 
             if (user == null || !VerifyPassword(loginDto.Password, user.PasswordHash))
             {
-                throw new UnauthorizedAccessException("Invalid credentials");
+                throw new UnauthorizedAccessException(AuthValidationMessages.InvalidCredentials());
             }
 
             var token = GenerateJwtToken(user);
@@ -62,7 +63,7 @@ namespace CineApi.Services
         {
             if (await UserExistsAsync(registerDto.Email))
             {
-                throw new InvalidOperationException("User already exists");
+                throw new InvalidOperationException(AuthValidationMessages.UserAlreadyExists());
             }
 
             var user = new User
@@ -133,7 +134,7 @@ namespace CineApi.Services
         {
             if (await UserExistsAsync(createUserDto.Email))
             {
-                throw new InvalidOperationException("User already exists");
+                throw new InvalidOperationException(AuthValidationMessages.UserAlreadyExists());
             }
 
             var user = new User
@@ -167,7 +168,7 @@ namespace CineApi.Services
                 .FirstOrDefaultAsync(u => u.Email == updateUserDto.Email && u.Id != id);
             if (existingUser != null)
             {
-                throw new InvalidOperationException("Email already in use");
+                throw new InvalidOperationException(AuthValidationMessages.EmailAlreadyUsed());
             }
 
             user.FirstName = updateUserDto.FirstName;
@@ -240,7 +241,7 @@ namespace CineApi.Services
         public class CannotDeleteSysAdminException : Exception
         {
             public CannotDeleteSysAdminException()
-                : base("Cannot delete the system administrator.") { }
+                : base(AuthValidationMessages.SystemAdminCannotBeDeleted()) { }
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using CineApi.Models;
+using CineApi.Models.Consts;
 using CineApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
 
@@ -59,7 +60,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
 
@@ -74,20 +75,20 @@ namespace CineApi.Controllers
 
                 if (currentUserId != id && currentUserRole != "SysAdmin")
                 {
-                    return Forbid("You can only view your own profile");
+                    return Forbid(AuthValidationMessages.OnlyViewOwnProfile());
                 }
 
                 var user = await _authService.GetUserByIdAsync(id);
                 if (user == null)
                 {
-                    return NotFound(new { message = "User not found" });
+                    return NotFound(new { message = AuthValidationMessages.UserNotFound() });
                 }
 
                 return Ok(user);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
 
@@ -102,7 +103,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
 
@@ -126,7 +127,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
 
@@ -144,14 +145,14 @@ namespace CineApi.Controllers
                 var result = await _authService.UpdateUserAsync(id, updateUserDto);
                 if (result == null)
                 {
-                    return NotFound(new { message = "User not found" });
+                    return NotFound(new { message = AuthValidationMessages.UserNotFound() });
                 }
 
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
 
@@ -164,10 +165,10 @@ namespace CineApi.Controllers
                 var success = await _authService.DeleteUserAsync(id);
                 if (!success)
                 {
-                    return NotFound(new { message = "User not found" });
+                    return NotFound(new { message = AuthValidationMessages.UserNotFound() });
                 }
 
-                return Ok(new { message = "User deleted successfully" });
+                return Ok(new { message = AuthValidationMessages.UserDeletedSuccessfully() });
             }
             catch (CannotDeleteSysAdminException ex)
             {
@@ -175,7 +176,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" + ex });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
     }

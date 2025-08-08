@@ -1,6 +1,7 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
 using CineApi.Models;
+using CineApi.Models.Consts;
 using Microsoft.EntityFrameworkCore;
 
 namespace CineApi.Services
@@ -46,7 +47,7 @@ namespace CineApi.Services
 
             var directorExists = await _context.Directors.AnyAsync(d => d.Id == request.DirectorId);
             if (!directorExists)
-                throw new ArgumentException("Director not found");
+                throw new ArgumentException(MovieValidationMessage.DirectorNotfound());
 
             var movie = new Movie
             {
@@ -72,7 +73,7 @@ namespace CineApi.Services
 
             var directorExists = await _context.Directors.AnyAsync(d => d.Id == request.DirectorId);
             if (!directorExists)
-                throw new ArgumentException("Director not found");
+                throw new ArgumentException(MovieValidationMessage.DirectorNotfound());
 
             movie.Title = request.Title;
             movie.Type = request.Type;

@@ -1,4 +1,5 @@
 ﻿using CineApi.Models;
+using CineApi.Models.Consts;
 using CineApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,6 @@ namespace MovieApp.Controllers
             var movie = await _movieService.GetMovieByIdAsync(id);
             if (movie == null)
                 return NotFound();
-
             return Ok(movie);
         }
 
@@ -46,7 +46,7 @@ namespace MovieApp.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error creating movie", details = ex.Message });
+                return BadRequest(new { message = MovieValidationMessage.ErrorCreatingMovie(), details = ex.Message });
             }
         }
 
@@ -55,7 +55,7 @@ namespace MovieApp.Controllers
         public async Task<IActionResult> UpdateMovie(int id, UpdateMovieDto request)
         {
             if (id != request.Id)
-                return BadRequest("Movie ID mismatch");
+                return BadRequest(MovieValidationMessage.MovieIdMismatch());
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             try
@@ -67,7 +67,7 @@ namespace MovieApp.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error updating movie", details = ex.Message });
+                return BadRequest(new { message = MovieValidationMessage.ErrorUpdatingMovie(), details = ex.Message });
             }
         }
 
@@ -82,7 +82,7 @@ namespace MovieApp.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error deleting movie", details = ex.Message });
+                return BadRequest(new { message = MovieValidationMessage.ErrorDeletingMovie(), details = ex.Message });
             }
         }
     }

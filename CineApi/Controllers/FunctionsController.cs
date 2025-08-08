@@ -1,4 +1,5 @@
 ﻿using CineApi.Models;
+using CineApi.Models.Consts;
 using CineApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,6 @@ namespace CineApi.Controllers
             var function = await _movieFunctionService.GetFunctionByIdAsync(id);
             if (function == null)
                 return NotFound();
-
             return Ok(function);
         }
 
@@ -39,7 +39,6 @@ namespace CineApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
             try
             {
                 var function = await _movieFunctionService.CreateFunctionAsync(request);
@@ -47,7 +46,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error creating function", details = ex.Message });
+                return BadRequest(new { message = FunctionValidationMessages.ErrorCreatingFunction(), details = ex.Message });
             }
         }
 
@@ -57,18 +56,16 @@ namespace CineApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
             try
             {
                 var function = await _movieFunctionService.UpdateFunctionAsync(id, request);
                 if (function == null)
                     return NotFound();
-
                 return Ok(function);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error updating function", details = ex.Message });
+                return BadRequest(new { message = FunctionValidationMessages.ErrorUpdatingFunction(), details = ex.Message });
             }
         }
 
@@ -79,9 +76,7 @@ namespace CineApi.Controllers
             var deleted = await _movieFunctionService.DeleteFunctionAsync(id);
             if (!deleted)
                 return NotFound();
-
             return NoContent();
         }
-
     }
 }

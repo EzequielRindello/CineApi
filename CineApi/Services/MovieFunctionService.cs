@@ -1,6 +1,7 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
 using CineApi.Models;
+using CineApi.Models.Consts;
 using Microsoft.EntityFrameworkCore;
 
 namespace CineApi.Services
@@ -47,7 +48,7 @@ namespace CineApi.Services
 
         public async Task<MovieFunctionDto> CreateFunctionAsync(CreateMovieFunctionRequest request)
         {
-            var movieExists = await _context.Movies.FirstOrDefaultAsync(m => m.Id == request.MovieId) ?? throw new ArgumentException("Movie not found");
+            var movieExists = await _context.Movies.FirstOrDefaultAsync(m => m.Id == request.MovieId) ?? throw new ArgumentException(MovieValidationMessage.MovieNotfound());
             var function = new MovieFunction
             {
                 Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
@@ -73,7 +74,7 @@ namespace CineApi.Services
             var movieExists = await _context.Movies.AnyAsync(m => m.Id == request.MovieId);
             if (!movieExists)
             {
-                throw new ArgumentException("Movie not found");
+                throw new ArgumentException(MovieValidationMessage.MovieNotfound());
             }
 
             function.Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc);
