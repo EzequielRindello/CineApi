@@ -10,8 +10,8 @@ namespace CineApi.Services
         Task<IEnumerable<MovieDto>> GetAllMoviesAsync();
         Task<MovieDto?> GetMovieByIdAsync(int id);
         Task<MovieDto> CreateMovieAsync(CreateMovieDto request);
-        Task<MovieDto> UpdateMovieAsync(UpdateMovieDto request);
-        Task DeleteMovieAsync(int id);
+        Task<MovieDto?> UpdateMovieAsync(UpdateMovieDto request);
+        Task<bool> DeleteMovieAsync(int id);
     }
 
     public class MovieService : IMovieService
@@ -43,6 +43,11 @@ namespace CineApi.Services
 
         public async Task<MovieDto> CreateMovieAsync(CreateMovieDto request)
         {
+
+            var directorExists = await _context.Directors.AnyAsync(d => d.Id == request.DirectorId);
+            if (!directorExists)
+                throw new ArgumentException("Director not found");
+
             var movie = new Movie
             {
                 Title = request.Title,
@@ -54,16 +59,20 @@ namespace CineApi.Services
 
             _context.Movies.Add(movie);
             await _context.SaveChangesAsync();
-            return MapToDto(movie);
+
+            var createdMovie = await GetMovieByIdAsync(movie.Id);
+            return createdMovie!;
         }
 
-        public async Task<MovieDto> UpdateMovieAsync(UpdateMovieDto request)
+        public async Task<MovieDto?> UpdateMovieAsync(UpdateMovieDto request)
         {
-            var movie = await _context.Movies
-                .Include(m => m.Director)
-                .FirstOrDefaultAsync(m => m.Id == request.Id);
+            var movie = await _context.Movies.FindAsync(request.Id);
             if (movie == null)
-                throw new KeyNotFoundException("Movie not found");
+                return null;
+
+            var directorExists = await _context.Directors.AnyAsync(d => d.Id == request.DirectorId);
+            if (!directorExists)
+                throw new ArgumentException("Director not found");
 
             movie.Title = request.Title;
             movie.Type = request.Type;
@@ -71,18 +80,20 @@ namespace CineApi.Services
             movie.Description = request.Description;
             movie.DirectorId = request.DirectorId;
 
-            _context.Movies.Update(movie);
             await _context.SaveChangesAsync();
-            return MapToDto(movie);
+
+            return await GetMovieByIdAsync(request.Id);
         }
 
-        public async Task DeleteMovieAsync(int id)
+        public async Task<bool> DeleteMovieAsync(int id)
         {
             var movie = await _context.Movies.FindAsync(id);
             if (movie == null)
-                throw new KeyNotFoundException("Movie not found");
+                return false;
+
             _context.Movies.Remove(movie);
             await _context.SaveChangesAsync();
+            return true;
         }
 
         private static MovieDto MapToDto(Movie movie)
