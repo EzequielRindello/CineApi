@@ -19,5 +19,13 @@ namespace CineApi.Entity
 
         // Navigation property
         public Movie Movie { get; set; }
+
+        [Required]
+        public int TotalCapacity { get; set; } = 50;
+
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+
+        [NotMapped]
+        public int AvailableSeats => TotalCapacity - Reservations.Sum(r => r.TicketQuantity);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using CineApi.Models;
+using CineApi.Models.Consts;
 using CineApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MovieApp.Controllers
@@ -28,8 +30,60 @@ namespace MovieApp.Controllers
             var movie = await _movieService.GetMovieByIdAsync(id);
             if (movie == null)
                 return NotFound();
-
             return Ok(movie);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult<MovieDto>> CreateMovie(CreateMovieDto request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var movie = await _movieService.CreateMovieAsync(request);
+                return CreatedAtAction(nameof(GetMovieById), new { id = movie.Id }, movie);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = MovieValidationMessage.ErrorCreatingMovie(), details = ex.Message });
+            }
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateMovie(int id, UpdateMovieDto request)
+        {
+            if (id != request.Id)
+                return BadRequest(MovieValidationMessage.MovieIdMismatch());
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var movie = await _movieService.UpdateMovieAsync(request);
+                if (movie == null)
+                    return NotFound();
+                return Ok(movie);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = MovieValidationMessage.ErrorUpdatingMovie(), details = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMovie(int id)
+        {
+            try
+            {
+                await _movieService.DeleteMovieAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = MovieValidationMessage.ErrorDeletingMovie(), details = ex.Message });
+            }
         }
     }
 }

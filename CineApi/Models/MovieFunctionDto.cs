@@ -9,6 +9,8 @@ namespace CineApi.Models
         public TimeSpan Time { get; set; }
         public decimal Price { get; set; }
         public int MovieId { get; set; }
+        public int TotalCapacity { get; set; }
+        public int AvailableSeats { get; set; }
         public MovieDto? Movie { get; set; }
     }
 
@@ -21,6 +23,8 @@ namespace CineApi.Models
         [Required][Range(0, double.MaxValue, ErrorMessage = "Price must be positive")] public decimal Price { get; set; }
 
         [Required] public int MovieId { get; set; }
+
+        [Required][Range(1, 500)] public int TotalCapacity { get; set; } = 50;
     }
 
     public class UpdateMovieFunctionRequest

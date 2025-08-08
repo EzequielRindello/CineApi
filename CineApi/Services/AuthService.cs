@@ -1,6 +1,7 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
 using CineApi.Models;
+using CineApi.Models.Consts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,6 +16,10 @@ namespace CineApi.Services
         Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto);
         Task<bool> UserExistsAsync(string email);
         Task<UserDto> GetUserByIdAsync(int id);
+        Task<List<UserDto>> GetAllUsersAsync();
+        Task<UserDto> CreateUserAsync(CreateUserDto createUserDto);
+        Task<UserDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto);
+        Task<bool> DeleteUserAsync(int id);
     }
 
     public class AuthService : IAuthService
@@ -35,7 +40,7 @@ namespace CineApi.Services
 
             if (user == null || !VerifyPassword(loginDto.Password, user.PasswordHash))
             {
-                throw new UnauthorizedAccessException("Invalid credentials");
+                throw new UnauthorizedAccessException(AuthValidationMessages.InvalidCredentials());
             }
 
             var token = GenerateJwtToken(user);
@@ -48,7 +53,8 @@ namespace CineApi.Services
                     Id = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    Email = user.Email
+                    Email = user.Email,
+                    Role = user.Role.ToString()
                 }
             };
         }
@@ -57,7 +63,7 @@ namespace CineApi.Services
         {
             if (await UserExistsAsync(registerDto.Email))
             {
-                throw new InvalidOperationException("User already exists");
+                throw new InvalidOperationException(AuthValidationMessages.UserAlreadyExists());
             }
 
             var user = new User
@@ -65,7 +71,8 @@ namespace CineApi.Services
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 Email = registerDto.Email,
-                PasswordHash = HashPassword(registerDto.Password)
+                PasswordHash = HashPassword(registerDto.Password),
+                Role = UserRole.User
             };
 
             _context.Users.Add(user);
@@ -81,7 +88,8 @@ namespace CineApi.Services
                     Id = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    Email = user.Email
+                    Email = user.Email,
+                    Role = user.Role.ToString()
                 }
             };
         }
@@ -103,8 +111,95 @@ namespace CineApi.Services
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Email = user.Email
+                Email = user.Email,
+                Role = user.Role.ToString()
             };
+        }
+
+        public async Task<List<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _context.Users.ToListAsync();
+
+            return users.Select(u => new UserDto
+            {
+                Id = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                Role = u.Role.ToString()
+            }).ToList();
+        }
+
+        public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
+        {
+            if (await UserExistsAsync(createUserDto.Email))
+            {
+                throw new InvalidOperationException(AuthValidationMessages.UserAlreadyExists());
+            }
+
+            var user = new User
+            {
+                FirstName = createUserDto.FirstName,
+                LastName = createUserDto.LastName,
+                Email = createUserDto.Email,
+                PasswordHash = HashPassword(createUserDto.Password),
+                Role = createUserDto.Role
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role.ToString()
+            };
+        }
+
+        public async Task<UserDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return null;
+
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == updateUserDto.Email && u.Id != id);
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException(AuthValidationMessages.EmailAlreadyUsed());
+            }
+
+            user.FirstName = updateUserDto.FirstName;
+            user.LastName = updateUserDto.LastName;
+            user.Email = updateUserDto.Email;
+            user.Role = updateUserDto.Role;
+
+            await _context.SaveChangesAsync();
+
+            return new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = user.Role.ToString()
+            };
+        }
+
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return false;
+
+            // Id 1 will always correspond to SysAdmin
+            if (user.Id == 1)
+                throw new CannotDeleteSysAdminException();
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         private string GenerateJwtToken(User user)
@@ -115,8 +210,11 @@ namespace CineApi.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("id", user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("role", user.Role.ToString())
             };
 
             var token = new JwtSecurityToken(
@@ -139,5 +237,12 @@ namespace CineApi.Services
         {
             return BCrypt.Net.BCrypt.Verify(password, hash);
         }
+
+        public class CannotDeleteSysAdminException : Exception
+        {
+            public CannotDeleteSysAdminException()
+                : base(AuthValidationMessages.SystemAdminCannotBeDeleted()) { }
+        }
+
     }
 }

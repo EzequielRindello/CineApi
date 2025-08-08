@@ -1,6 +1,7 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
 using CineApi.Models;
+using CineApi.Models.Consts;
 using Microsoft.EntityFrameworkCore;
 
 namespace CineApi.Services
@@ -28,6 +29,7 @@ namespace CineApi.Services
             var functions = await _context.MovieFunctions
                 .Include(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
+                .Include(mf => mf.Reservations)
                 .ToListAsync();
 
             return functions.Select(MapToDto);
@@ -38,6 +40,7 @@ namespace CineApi.Services
             var function = await _context.MovieFunctions
                 .Include(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
+                .Include(mf => mf.Reservations)
                 .FirstOrDefaultAsync(mf => mf.Id == id);
 
             return function != null ? MapToDto(function) : null;
@@ -45,13 +48,14 @@ namespace CineApi.Services
 
         public async Task<MovieFunctionDto> CreateFunctionAsync(CreateMovieFunctionRequest request)
         {
-            var movieExists = await _context.Movies.FirstOrDefaultAsync(m => m.Id == request.MovieId) ?? throw new ArgumentException("Movie not found");
+            var movieExists = await _context.Movies.FirstOrDefaultAsync(m => m.Id == request.MovieId) ?? throw new ArgumentException(MovieValidationMessage.MovieNotfound());
             var function = new MovieFunction
             {
                 Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),
                 Time = request.Time,
                 Price = request.Price,
-                MovieId = request.MovieId
+                MovieId = request.MovieId,
+                TotalCapacity = request.TotalCapacity
             };
 
             _context.MovieFunctions.Add(function);
@@ -70,7 +74,7 @@ namespace CineApi.Services
             var movieExists = await _context.Movies.AnyAsync(m => m.Id == request.MovieId);
             if (!movieExists)
             {
-                throw new ArgumentException("Movie not found");
+                throw new ArgumentException(MovieValidationMessage.MovieNotfound());
             }
 
             function.Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc);
@@ -103,6 +107,8 @@ namespace CineApi.Services
                 Time = function.Time,
                 Price = function.Price,
                 MovieId = function.MovieId,
+                TotalCapacity = function.TotalCapacity,
+                AvailableSeats = function.AvailableSeats,
                 Movie = function.Movie != null ? new MovieDto
                 {
                     Id = function.Movie.Id,
