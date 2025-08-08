@@ -28,6 +28,7 @@ namespace CineApi.Models
 
         [Required]
         [StringLength(50)]
+        [AllowedValues("national", "international")]
         public string Type { get; set; }
 
         [Required]
@@ -49,6 +50,7 @@ namespace CineApi.Models
 
         [Required]
         [StringLength(50)]
+        [AllowedValues("national", "international")]
         public string Type { get; set; }
 
         [Required]
