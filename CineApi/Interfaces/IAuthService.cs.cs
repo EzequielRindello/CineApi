@@ -8,9 +8,5 @@ namespace CineApi.Interfaces
         Task<AuthResponseDto> Register(RegisterDto registerDto);
         Task<bool> UserExists(string email);
         Task<UserDto> GetUserById(int id);
-        Task<List<UserDto>> GetAllUsers();
-        Task<UserDto> CreateUser(CreateUserDto createUserDto);
-        Task<UserDto> UpdateUser(int id, UpdateUserDto updateUserDto);
-        Task<bool> DeleteUser(int id);
     }
 }
