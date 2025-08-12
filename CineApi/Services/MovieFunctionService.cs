@@ -1,20 +1,13 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
-using CineApi.Models;
+using CineApi.Helpers;
+using CineApi.Interfaces;
 using CineApi.Models.Consts;
+using CineApi.Models.Function;
 using Microsoft.EntityFrameworkCore;
 
 namespace CineApi.Services
 {
-    public interface IMovieFunctionService
-    {
-        Task<IEnumerable<MovieFunctionDto>> GetAllFunctionsAsync();
-        Task<MovieFunctionDto?> GetFunctionByIdAsync(int id);
-        Task<MovieFunctionDto> CreateFunctionAsync(CreateMovieFunctionRequest request);
-        Task<MovieFunctionDto?> UpdateFunctionAsync(int id, UpdateMovieFunctionRequest request);
-        Task<bool> DeleteFunctionAsync(int id);
-    }
-
     public class MovieFunctionService : IMovieFunctionService
     {
         private readonly AppDbContext _context;
@@ -24,29 +17,33 @@ namespace CineApi.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<MovieFunctionDto>> GetAllFunctionsAsync()
+        public async Task<IEnumerable<MovieFunctionDto>> GetAllFunctions()
         {
             var functions = await _context.MovieFunctions
+                .AsNoTracking()
                 .Include(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
                 .Include(mf => mf.Reservations)
+                .AsSplitQuery()
                 .ToListAsync();
 
-            return functions.Select(MapToDto);
+            return functions.Select(DataMapper.MapToMovieDto);
         }
 
-        public async Task<MovieFunctionDto?> GetFunctionByIdAsync(int id)
+        public async Task<MovieFunctionDto?> GetFunctionById(int id)
         {
             var function = await _context.MovieFunctions
+                .AsNoTracking()
                 .Include(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
                 .Include(mf => mf.Reservations)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(mf => mf.Id == id);
 
-            return function != null ? MapToDto(function) : null;
+            return function != null ? DataMapper.MapToMovieDto(function) : null;
         }
 
-        public async Task<MovieFunctionDto> CreateFunctionAsync(CreateMovieFunctionRequest request)
+        public async Task<MovieFunctionDto> CreateFunction(CreateMovieFunctionRequest request)
         {
             var movieExists = await _context.Movies.FirstOrDefaultAsync(m => m.Id == request.MovieId) ?? throw new ArgumentException(MovieValidationMessage.MovieNotfound());
             var function = new MovieFunction
@@ -61,11 +58,11 @@ namespace CineApi.Services
             _context.MovieFunctions.Add(function);
             await _context.SaveChangesAsync();
 
-            var createdFunction = await GetFunctionByIdAsync(function.Id);
+            var createdFunction = await GetFunctionById(function.Id);
             return createdFunction!;
         }
 
-        public async Task<MovieFunctionDto?> UpdateFunctionAsync(int id, UpdateMovieFunctionRequest request)
+        public async Task<MovieFunctionDto?> UpdateFunction(int id, UpdateMovieFunctionRequest request)
         {
             var function = await _context.MovieFunctions.FindAsync(id);
             if (function == null)
@@ -84,10 +81,10 @@ namespace CineApi.Services
 
             await _context.SaveChangesAsync();
 
-            return await GetFunctionByIdAsync(id);
+            return await GetFunctionById(id);
         }
 
-        public async Task<bool> DeleteFunctionAsync(int id)
+        public async Task<bool> DeleteFunction(int id)
         {
             var function = await _context.MovieFunctions.FindAsync(id);
             if (function == null)
@@ -96,35 +93,6 @@ namespace CineApi.Services
             _context.MovieFunctions.Remove(function);
             await _context.SaveChangesAsync();
             return true;
-        }
-
-        private static MovieFunctionDto MapToDto(MovieFunction function)
-        {
-            return new MovieFunctionDto
-            {
-                Id = function.Id,
-                Date = function.Date,
-                Time = function.Time,
-                Price = function.Price,
-                MovieId = function.MovieId,
-                TotalCapacity = function.TotalCapacity,
-                AvailableSeats = function.AvailableSeats,
-                Movie = function.Movie != null ? new MovieDto
-                {
-                    Id = function.Movie.Id,
-                    Title = function.Movie.Title,
-                    Type = function.Movie.Type,
-                    Poster = function.Movie.Poster,
-                    Description = function.Movie.Description,
-                    DirectorId = function.Movie.DirectorId,
-                    Director = function.Movie.Director != null ? new DirectorDto
-                    {
-                        Id = function.Movie.Director.Id,
-                        Name = function.Movie.Director.Name,
-                        Nationality = function.Movie.Director.Nationality
-                    } : null
-                } : null
-            };
         }
     }
 }

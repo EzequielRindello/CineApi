@@ -1,9 +1,9 @@
-﻿using CineApi.Models;
+﻿using CineApi.Interfaces;
 using CineApi.Models.Consts;
-using CineApi.Services;
+using CineApi.Models.Consts.UserRoles;
+using CineApi.Models.LoginDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static CineApi.Services.AuthService;
 
 namespace CineApi.Controllers
 {
@@ -28,7 +28,7 @@ namespace CineApi.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _authService.LoginAsync(loginDto);
+                var result = await _authService.Login(loginDto);
                 return Ok(result);
             }
             catch (UnauthorizedAccessException ex)
@@ -51,7 +51,7 @@ namespace CineApi.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _authService.RegisterAsync(registerDto);
+                var result = await _authService.Register(registerDto);
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
@@ -66,19 +66,19 @@ namespace CineApi.Controllers
 
         [HttpGet("user/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetUserForSysAdmin(int id)
+        public async Task<IActionResult> GetProfile(int id)
         {
             try
             {
                 var currentUserId = int.Parse(User.FindFirst("id")?.Value ?? "0");
                 var currentUserRole = User.FindFirst("role")?.Value;
 
-                if (currentUserId != id && currentUserRole != "SysAdmin")
+                if (currentUserId != id && currentUserRole != UserRoles.SysAdmin)
                 {
                     return Forbid(AuthValidationMessages.OnlyViewOwnProfile());
                 }
 
-                var user = await _authService.GetUserByIdAsync(id);
+                var user = await _authService.GetUserById(id);
                 if (user == null)
                 {
                     return NotFound(new { message = AuthValidationMessages.UserNotFound() });
@@ -93,12 +93,12 @@ namespace CineApi.Controllers
         }
 
         [HttpGet("users")]
-        [Authorize(Roles = "SysAdmin")]
+        [Authorize(Roles = UserRoles.SysAdmin)]
         public async Task<IActionResult> GetAllUsers()
         {
             try
             {
-                var users = await _authService.GetAllUsersAsync();
+                var users = await _authService.GetAllUsers();
                 return Ok(users);
             }
             catch (Exception ex)
@@ -108,7 +108,7 @@ namespace CineApi.Controllers
         }
 
         [HttpPost("users")]
-        [Authorize(Roles = "SysAdmin")]
+        [Authorize(Roles = UserRoles.SysAdmin)]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
         {
             try
@@ -118,7 +118,7 @@ namespace CineApi.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _authService.CreateUserAsync(createUserDto);
+                var result = await _authService.CreateUser(createUserDto);
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
@@ -132,7 +132,7 @@ namespace CineApi.Controllers
         }
 
         [HttpPut("users/{id}")]
-        [Authorize(Roles = "SysAdmin")]
+        [Authorize(Roles = UserRoles.SysAdmin)]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto updateUserDto)
         {
             try
@@ -142,7 +142,7 @@ namespace CineApi.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _authService.UpdateUserAsync(id, updateUserDto);
+                var result = await _authService.UpdateUser(id, updateUserDto);
                 if (result == null)
                 {
                     return NotFound(new { message = AuthValidationMessages.UserNotFound() });
@@ -157,22 +157,18 @@ namespace CineApi.Controllers
         }
 
         [HttpDelete("users/{id}")]
-        [Authorize(Roles = "SysAdmin")]
+        [Authorize(Roles = UserRoles.SysAdmin)]
         public async Task<IActionResult> DeleteUser(int id)
         {
             try
             {
-                var success = await _authService.DeleteUserAsync(id);
+                var success = await _authService.DeleteUser(id);
                 if (!success)
                 {
                     return NotFound(new { message = AuthValidationMessages.UserNotFound() });
                 }
 
                 return Ok(new { message = AuthValidationMessages.UserDeletedSuccessfully() });
-            }
-            catch (CannotDeleteSysAdminException ex)
-            {
-                return StatusCode(403, new { message = ex.Message });
             }
             catch (Exception ex)
             {

@@ -1,20 +1,13 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
-using CineApi.Models;
+using CineApi.Helpers;
+using CineApi.Interfaces;
 using CineApi.Models.Consts;
+using CineApi.Models.Movie;
 using Microsoft.EntityFrameworkCore;
 
 namespace CineApi.Services
 {
-    public interface IMovieService
-    {
-        Task<IEnumerable<MovieDto>> GetAllMoviesAsync();
-        Task<MovieDto?> GetMovieByIdAsync(int id);
-        Task<MovieDto> CreateMovieAsync(CreateMovieDto request);
-        Task<MovieDto?> UpdateMovieAsync(UpdateMovieDto request);
-        Task<bool> DeleteMovieAsync(int id);
-    }
-
     public class MovieService : IMovieService
     {
         private readonly AppDbContext _context;
@@ -24,25 +17,27 @@ namespace CineApi.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<MovieDto>> GetAllMoviesAsync()
+        public async Task<IEnumerable<MovieDto>> GetAllMovies()
         {
             var movies = await _context.Movies
+                .AsNoTracking()
                 .Include(m => m.Director)
                 .ToListAsync();
 
-            return movies.Select(MapToDto);
+            return movies.Select(DataMapper.MapToMovieDto);
         }
 
-        public async Task<MovieDto?> GetMovieByIdAsync(int id)
+        public async Task<MovieDto?> GetMovieById(int id)
         {
             var movie = await _context.Movies
+                .AsNoTracking()
                 .Include(m => m.Director)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            return movie != null ? MapToDto(movie) : null;
+            return movie != null ? DataMapper.MapToMovieDto(movie) : null;
         }
 
-        public async Task<MovieDto> CreateMovieAsync(CreateMovieDto request)
+        public async Task<MovieDto> CreateMovie(CreateMovieDto request)
         {
 
             var directorExists = await _context.Directors.AnyAsync(d => d.Id == request.DirectorId);
@@ -61,11 +56,11 @@ namespace CineApi.Services
             _context.Movies.Add(movie);
             await _context.SaveChangesAsync();
 
-            var createdMovie = await GetMovieByIdAsync(movie.Id);
+            var createdMovie = await GetMovieById(movie.Id);
             return createdMovie!;
         }
 
-        public async Task<MovieDto?> UpdateMovieAsync(UpdateMovieDto request)
+        public async Task<MovieDto?> UpdateMovie(UpdateMovieDto request)
         {
             var movie = await _context.Movies.FindAsync(request.Id);
             if (movie == null)
@@ -83,10 +78,10 @@ namespace CineApi.Services
 
             await _context.SaveChangesAsync();
 
-            return await GetMovieByIdAsync(request.Id);
+            return await GetMovieById(request.Id);
         }
 
-        public async Task<bool> DeleteMovieAsync(int id)
+        public async Task<bool> DeleteMovie(int id)
         {
             var movie = await _context.Movies.FindAsync(id);
             if (movie == null)
@@ -95,25 +90,6 @@ namespace CineApi.Services
             _context.Movies.Remove(movie);
             await _context.SaveChangesAsync();
             return true;
-        }
-
-        private static MovieDto MapToDto(Movie movie)
-        {
-            return new MovieDto
-            {
-                Id = movie.Id,
-                Title = movie.Title,
-                Type = movie.Type,
-                Poster = movie.Poster,
-                Description = movie.Description,
-                DirectorId = movie.DirectorId,
-                Director = movie.Director != null ? new DirectorDto
-                {
-                    Id = movie.Director.Id,
-                    Name = movie.Director.Name,
-                    Nationality = movie.Director.Nationality
-                } : null
-            };
         }
     }
 }

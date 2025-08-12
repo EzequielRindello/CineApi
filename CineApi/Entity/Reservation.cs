@@ -9,21 +9,22 @@ namespace CineApi.Entity
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [ForeignKey(nameof(User))]
         public int UserId { get; set; }
-        public int MovieFunctionId { get; set; }
 
-        [Required]
-        [Range(1, 4)]
-        public int TicketQuantity { get; set; }
 
-        [Required]
-        public DateTime ReservationDate { get; set; }
+        [ForeignKey(nameof(MovieFunction))]
+        public required int MovieFunctionId { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
+        public required int TicketQuantity { get; set; }
+
+
+        public required DateTime ReservationDate { get; set; }
+
         public decimal TotalAmount { get; set; }
 
         // Navigation properties
-        public User User { get; set; }
-        public MovieFunction MovieFunction { get; set; }
+        public User? User { get; set; }
+        public MovieFunction? MovieFunction { get; set; }
     }
 }

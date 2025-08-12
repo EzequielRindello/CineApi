@@ -1,4 +1,5 @@
 using CineApi.Data;
+using CineApi.Interfaces;
 using CineApi.Middleware;
 using CineApi.Services;
 using Microsoft.EntityFrameworkCore;

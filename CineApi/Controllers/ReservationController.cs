@@ -1,8 +1,9 @@
-﻿using CineApi.Models.Consts;
-using CineApi.Services;
+﻿using CineApi.Interfaces;
+using CineApi.Models.Consts;
+using CineApi.Models.Consts.UserRoles;
+using CineApi.Models.Reservation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static CineApi.Models.Reservations;
 
 namespace CineApi.Controllers
 {
@@ -18,23 +19,18 @@ namespace CineApi.Controllers
             _reservationService = reservationService;
         }
 
+        private int CurrentUserId => int.Parse(User.FindFirst("id")?.Value ?? "0");
+        private string CurrentUserRole => User.FindFirst("role")?.Value ?? "";
+
         [HttpPost]
         public async Task<IActionResult> CreateReservation(CreateReservationDto request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
-                if (userId == 0)
-                {
-                    return Unauthorized(ReservationValidationMessages.InvalidToken());
-                }
-
-                var result = await _reservationService.CreateReservationAsync(request, userId);
+                var result = await _reservationService.CreateReservation(request, CurrentUserId);
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -56,13 +52,7 @@ namespace CineApi.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
-                if (userId == 0)
-                {
-                    return Unauthorized(ReservationValidationMessages.InvalidToken());
-                }
-
-                var reservations = await _reservationService.GetUserReservationsAsync(userId);
+                var reservations = await _reservationService.GetUserReservations(CurrentUserId);
                 return Ok(reservations);
             }
             catch (Exception ex)
@@ -72,12 +62,12 @@ namespace CineApi.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "SysAdmin,CineAdmin")]
+        [Authorize(Roles = $"{UserRoles.SysAdmin},{UserRoles.CineAdmin}")]
         public async Task<IActionResult> GetAllReservations()
         {
             try
             {
-                var reservations = await _reservationService.GetAllReservationsAsync();
+                var reservations = await _reservationService.GetAllReservations();
                 return Ok(reservations);
             }
             catch (Exception ex)
@@ -91,16 +81,16 @@ namespace CineApi.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
-                var userRole = User.FindFirst("role")?.Value;
-
-                var reservation = await _reservationService.GetReservationByIdAsync(id);
+                var reservation = await _reservationService.GetReservationById(id);
                 if (reservation == null)
                 {
                     return NotFound(new { message = ReservationValidationMessages.ReservationNotFound() });
                 }
 
-                if (reservation.UserId != userId && userRole != "SysAdmin" && userRole != "CineAdmin")
+                // Check if user can access this reservation
+                if (reservation.UserId != CurrentUserId &&
+                    CurrentUserRole != UserRoles.SysAdmin &&
+                    CurrentUserRole != UserRoles.CineAdmin)
                 {
                     return Forbid(ReservationValidationMessages.OnlyViewOwnReservations());
                 }
@@ -116,20 +106,12 @@ namespace CineApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateReservation(int id, UpdateReservationDto request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
-                if (userId == 0)
-                {
-                    return Unauthorized(ReservationValidationMessages.InvalidToken());
-                }
-
-                var result = await _reservationService.UpdateReservationAsync(id, request, userId);
+                var result = await _reservationService.UpdateReservation(id, request, CurrentUserId);
                 if (result == null)
                 {
                     return NotFound(new { message = ReservationValidationMessages.ReservationNotFound() });
@@ -152,13 +134,7 @@ namespace CineApi.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
-                if (userId == 0)
-                {
-                    return Unauthorized(ReservationValidationMessages.InvalidToken());
-                }
-
-                var success = await _reservationService.CancelReservationAsync(id, userId);
+                var success = await _reservationService.CancelReservation(id, CurrentUserId);
                 if (!success)
                 {
                     return NotFound(new { message = ReservationValidationMessages.ReservationNotFound() });

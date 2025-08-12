@@ -17,11 +17,6 @@
             return "Email already in use";
         }
 
-        public static string SystemAdminCannotBeDeleted()
-        {
-            return "Cannot delete the system administrator.";
-        }
-
         public static string InternalServerError()
         {
             return "Internal server error";

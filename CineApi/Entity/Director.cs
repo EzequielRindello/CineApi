@@ -9,11 +9,11 @@ namespace CineApi.Entity
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required][MaxLength(200)] public string Name { get; set; }
+        public required string Name { get; set; }
 
-        [Required][MaxLength(100)] public string Nationality { get; set; }
+        public required string Nationality { get; set; }
 
         // Navigation property
-        public ICollection<Movie> Movies { get; set; } = new List<Movie>();
+        public List<Movie> Movies { get; set; } = new List<Movie>();
     }
 }

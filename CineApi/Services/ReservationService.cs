@@ -1,22 +1,13 @@
 ﻿using CineApi.Data;
 using CineApi.Entity;
-using CineApi.Models;
+using CineApi.Helpers;
+using CineApi.Interfaces;
 using CineApi.Models.Consts;
+using CineApi.Models.Reservation;
 using Microsoft.EntityFrameworkCore;
-using static CineApi.Models.Reservations;
 
 namespace CineApi.Services
 {
-    public interface IReservationService
-    {
-        Task<ReservationDto> CreateReservationAsync(CreateReservationDto request, int userId);
-        Task<IEnumerable<ReservationDto>> GetUserReservationsAsync(int userId);
-        Task<IEnumerable<ReservationDto>> GetAllReservationsAsync();
-        Task<ReservationDto?> GetReservationByIdAsync(int id);
-        Task<UpdateReservationDto> UpdateReservationAsync(int id, UpdateReservationDto updateReservationDto, int userId);
-        Task<bool> CancelReservationAsync(int id, int userId);
-    }
-
     public class ReservationService : IReservationService
     {
         private readonly AppDbContext _context;
@@ -27,7 +18,7 @@ namespace CineApi.Services
             _context = context;
         }
 
-        public async Task<ReservationDto> CreateReservationAsync(CreateReservationDto request, int userId)
+        public async Task<ReservationDto> CreateReservation(CreateReservationDto request, int userId)
         {
             var movieFunction = await _context.MovieFunctions
                 .Include(mf => mf.Reservations)
@@ -75,10 +66,10 @@ namespace CineApi.Services
             _context.Reservations.Add(reservation);
             await _context.SaveChangesAsync();
 
-            return await GetReservationByIdAsync(reservation.Id) ?? throw new InvalidOperationException(FunctionValidationMessages.FailedToCreate());
+            return await GetReservationById(reservation.Id) ?? throw new InvalidOperationException(FunctionValidationMessages.FailedToCreate());
         }
 
-        public async Task<UpdateReservationDto> UpdateReservationAsync(int id, UpdateReservationDto updateReservationDto, int userId)
+        public async Task<UpdateReservationDto> UpdateReservation(int id, UpdateReservationDto updateReservationDto, int userId)
         {
             var reservation = await _context.Reservations
                 .Include(r => r.MovieFunction)
@@ -110,49 +101,55 @@ namespace CineApi.Services
             _context.Reservations.Update(reservation);
             await _context.SaveChangesAsync();
 
-            return MapToUpdateDto(reservation);
+            return DataMapper.MapToUpdateReservationDto(reservation);
         }
 
-        public async Task<IEnumerable<ReservationDto>> GetUserReservationsAsync(int userId)
+        public async Task<IEnumerable<ReservationDto>> GetUserReservations(int userId)
         {
             var reservations = await _context.Reservations
+                .AsNoTracking()
                 .Include(r => r.User)
                 .Include(r => r.MovieFunction)
                 .ThenInclude(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
                 .Where(r => r.UserId == userId)
                 .OrderByDescending(r => r.ReservationDate)
+                .AsSplitQuery()
                 .ToListAsync();
 
-            return reservations.Select(MapToDto);
+            return reservations.Select(DataMapper.MapToReservationDto);
         }
 
-        public async Task<IEnumerable<ReservationDto>> GetAllReservationsAsync()
+        public async Task<IEnumerable<ReservationDto>> GetAllReservations()
         {
             var reservations = await _context.Reservations
+                .AsNoTracking()
                 .Include(r => r.User)
                 .Include(r => r.MovieFunction)
                 .ThenInclude(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
                 .OrderByDescending(r => r.ReservationDate)
+                .AsSplitQuery()
                 .ToListAsync();
 
-            return reservations.Select(MapToDto);
+            return reservations.Select(DataMapper.MapToReservationDto);
         }
 
-        public async Task<ReservationDto?> GetReservationByIdAsync(int id)
+        public async Task<ReservationDto?> GetReservationById(int id)
         {
             var reservation = await _context.Reservations
+                .AsNoTracking()
                 .Include(r => r.User)
                 .Include(r => r.MovieFunction)
                 .ThenInclude(mf => mf.Movie)
                 .ThenInclude(m => m.Director)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(r => r.Id == id);
 
-            return reservation != null ? MapToDto(reservation) : null;
+            return reservation != null ? DataMapper.MapToReservationDto(reservation) : null;
         }
 
-        public async Task<bool> CancelReservationAsync(int id, int userId)
+        public async Task<bool> CancelReservation(int id, int userId)
         {
             var reservation = await _context.Reservations
                 .Include(r => r.MovieFunction)
@@ -168,81 +165,6 @@ namespace CineApi.Services
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();
             return true;
-        }
-
-        private static ReservationDto MapToDto(Reservation reservation)
-        {
-            return new ReservationDto
-            {
-                Id = reservation.Id,
-                UserId = reservation.UserId,
-                MovieFunctionId = reservation.MovieFunctionId,
-                TicketQuantity = reservation.TicketQuantity,
-                ReservationDate = reservation.ReservationDate,
-                TotalAmount = reservation.TotalAmount,
-                User = reservation.User != null ? new UserDto
-                {
-                    Id = reservation.User.Id,
-                    FirstName = reservation.User.FirstName,
-                    LastName = reservation.User.LastName,
-                    Email = reservation.User.Email,
-                    Role = reservation.User.Role.ToString()
-                } : null,
-                MovieFunction = reservation.MovieFunction != null ? new MovieFunctionDto
-                {
-                    Id = reservation.MovieFunction.Id,
-                    Date = reservation.MovieFunction.Date,
-                    Time = reservation.MovieFunction.Time,
-                    Price = reservation.MovieFunction.Price,
-                    MovieId = reservation.MovieFunction.MovieId,
-                    TotalCapacity = reservation.MovieFunction.TotalCapacity,
-                    AvailableSeats = reservation.MovieFunction.AvailableSeats,
-                    Movie = reservation.MovieFunction.Movie != null ? new MovieDto
-                    {
-                        Id = reservation.MovieFunction.Movie.Id,
-                        Title = reservation.MovieFunction.Movie.Title,
-                        Type = reservation.MovieFunction.Movie.Type,
-                        Poster = reservation.MovieFunction.Movie.Poster,
-                        Description = reservation.MovieFunction.Movie.Description,
-                        DirectorId = reservation.MovieFunction.Movie.DirectorId,
-                        Director = reservation.MovieFunction.Movie.Director != null ? new DirectorDto
-                        {
-                            Id = reservation.MovieFunction.Movie.Director.Id,
-                            Name = reservation.MovieFunction.Movie.Director.Name,
-                            Nationality = reservation.MovieFunction.Movie.Director.Nationality
-                        } : null
-                    } : null
-                } : null
-            };
-        }
-
-        private static UpdateReservationDto MapToUpdateDto(Reservation reservation)
-        {
-            return new UpdateReservationDto
-            {
-                MovieFunctionId = reservation.MovieFunctionId,
-                TicketQuantity = reservation.TicketQuantity,
-                ReservationDate = reservation.ReservationDate,
-                TotalAmount = reservation.TotalAmount,
-                User = reservation.User != null ? new UserDto
-                {
-                    Id = reservation.User.Id,
-                    FirstName = reservation.User.FirstName,
-                    LastName = reservation.User.LastName,
-                    Email = reservation.User.Email,
-                    Role = reservation.User.Role.ToString()
-                } : null,
-                MovieFunction = reservation.MovieFunction != null ? new MovieFunctionDto
-                {
-                    Id = reservation.MovieFunction.Id,
-                    Date = reservation.MovieFunction.Date,
-                    Time = reservation.MovieFunction.Time,
-                    Price = reservation.MovieFunction.Price,
-                    MovieId = reservation.MovieFunction.MovieId,
-                    TotalCapacity = reservation.MovieFunction.TotalCapacity,
-                    AvailableSeats = reservation.MovieFunction.AvailableSeats
-                } : null
-            };
         }
     }
 }

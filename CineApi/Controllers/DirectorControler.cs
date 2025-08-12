@@ -1,5 +1,5 @@
-﻿using CineApi.Models;
-using CineApi.Services;
+﻿using CineApi.Interfaces;
+using CineApi.Models.Director;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CineApi.Controllers
@@ -18,14 +18,14 @@ namespace CineApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DirectorDto>>> GetAllDirectors()
         {
-            var directors = await _directorService.GetAllDirectorsAsync();
+            var directors = await _directorService.GetAllDirectors();
             return Ok(directors);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<DirectorDto>> GetDirectorById(int id)
         {
-            var director = await _directorService.GetDirectorByIdAsync(id);
+            var director = await _directorService.GetDirectorById(id);
             if (director == null)
                 return NotFound();
 

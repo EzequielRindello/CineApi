@@ -1,6 +1,6 @@
-﻿using CineApi.Models;
+﻿using CineApi.Interfaces;
 using CineApi.Models.Consts;
-using CineApi.Services;
+using CineApi.Models.Function;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,14 +20,14 @@ namespace CineApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MovieFunctionDto>>> GetAllFunctions()
         {
-            var functions = await _movieFunctionService.GetAllFunctionsAsync();
+            var functions = await _movieFunctionService.GetAllFunctions();
             return Ok(functions);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<MovieFunctionDto>> GetFunctionById(int id)
         {
-            var function = await _movieFunctionService.GetFunctionByIdAsync(id);
+            var function = await _movieFunctionService.GetFunctionById(id);
             if (function == null)
                 return NotFound();
             return Ok(function);
@@ -41,7 +41,7 @@ namespace CineApi.Controllers
                 return BadRequest(ModelState);
             try
             {
-                var function = await _movieFunctionService.CreateFunctionAsync(request);
+                var function = await _movieFunctionService.CreateFunction(request);
                 return CreatedAtAction(nameof(GetFunctionById), new { id = function.Id }, function);
             }
             catch (Exception ex)
@@ -58,7 +58,7 @@ namespace CineApi.Controllers
                 return BadRequest(ModelState);
             try
             {
-                var function = await _movieFunctionService.UpdateFunctionAsync(id, request);
+                var function = await _movieFunctionService.UpdateFunction(id, request);
                 if (function == null)
                     return NotFound();
                 return Ok(function);
@@ -73,7 +73,7 @@ namespace CineApi.Controllers
         [Authorize]
         public async Task<ActionResult> DeleteFunction(int id)
         {
-            var deleted = await _movieFunctionService.DeleteFunctionAsync(id);
+            var deleted = await _movieFunctionService.DeleteFunction(id);
             if (!deleted)
                 return NotFound();
             return NoContent();

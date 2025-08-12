@@ -1,6 +1,6 @@
-﻿using CineApi.Models;
+﻿using CineApi.Interfaces;
 using CineApi.Models.Consts;
-using CineApi.Services;
+using CineApi.Models.Movie;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,14 +20,14 @@ namespace MovieApp.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MovieDto>>> GetAllMovies()
         {
-            var movies = await _movieService.GetAllMoviesAsync();
+            var movies = await _movieService.GetAllMovies();
             return Ok(movies);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<MovieDto>> GetMovieById(int id)
         {
-            var movie = await _movieService.GetMovieByIdAsync(id);
+            var movie = await _movieService.GetMovieById(id);
             if (movie == null)
                 return NotFound();
             return Ok(movie);
@@ -41,7 +41,7 @@ namespace MovieApp.Controllers
                 return BadRequest(ModelState);
             try
             {
-                var movie = await _movieService.CreateMovieAsync(request);
+                var movie = await _movieService.CreateMovie(request);
                 return CreatedAtAction(nameof(GetMovieById), new { id = movie.Id }, movie);
             }
             catch (Exception ex)
@@ -60,7 +60,7 @@ namespace MovieApp.Controllers
                 return BadRequest(ModelState);
             try
             {
-                var movie = await _movieService.UpdateMovieAsync(request);
+                var movie = await _movieService.UpdateMovie(request);
                 if (movie == null)
                     return NotFound();
                 return Ok(movie);
@@ -77,7 +77,7 @@ namespace MovieApp.Controllers
         {
             try
             {
-                await _movieService.DeleteMovieAsync(id);
+                await _movieService.DeleteMovie(id);
                 return NoContent();
             }
             catch (Exception ex)
