@@ -31,6 +31,14 @@ dotnet ef database update
 
 ⚠️ If the project already contains migrations, you may not need to run these commands.
 
+⚠️ If you are having problesms witn the migrations, please run these commands in order.
+```
+  dotnet ef migrations remove
+  dotnet ef database drop
+  dotnet ef migrations add Initial 
+  dotnet ef database update
+```
+
 ## Backend base URL
 
 ```
@@ -62,17 +70,16 @@ There are three user roles:
 
 ### Auth
 
-- `POST /api/auth` – Login
-- `GET /api/auth/{id}` – Get user by ID
-- `PUT /api/auth/{id}` – Update user
-- `DELETE /api/auth/{id}` – Delete user
+- `POST /api/auth/login` – Login
+- `POST /api/auth/register` – Register
+- `GET /api/auth/user{id}` – Get user by ID
 
-### Users
+### User
 
-- `GET /api/users` – List all users (Sys Admin)
-- `POST /api/users` – Create user (Sys Admin)
-- `PUT /api/users/{id}` – Update user (Sys Admin)
-- `DELETE /api/users/{id}` – Delete user (Sys Admin)
+- `GET /api/user` – List all users (Sys Admin)
+- `POST /api/user` – Create user (Sys Admin)
+- `PUT /api/user/{id}` – Update user (Sys Admin)
+- `DELETE /api/user/{id}` – Delete user (Sys Admin)
 
 ### Screenings
 
