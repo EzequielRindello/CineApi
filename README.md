@@ -90,6 +90,11 @@ There are three user roles:
 - `PUT /api/movies/{id}` – Update movie (Sys/Cinema Admin)
 - `DELETE /api/movies/{id}` – Delete movie (Sys/Cinema Admin)
 
+### Directors
+
+- `GET /api/directors/` – Get directors
+- `GET /api/directors/{directorId}` – Get director by Id
+- 
 ### Reservations (Regular Users)
 
 - `POST /api/reservations` – Reserve seats (max 4 per screening)
