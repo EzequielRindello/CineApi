@@ -1,4 +1,5 @@
 using CineApi.Data;
+using CineApi.Interfaces;
 using CineApi.Middleware;
 using CineApi.Services;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IMovieFunctionService, MovieFunctionService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IDirectorService, DirectorService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddControllers();

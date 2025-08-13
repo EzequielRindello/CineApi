@@ -1,5 +1,7 @@
-﻿using CineApi.Models;
-using CineApi.Services;
+﻿using CineApi.Interfaces;
+using CineApi.Models.Consts;
+using CineApi.Models.Consts.UserRoles;
+using CineApi.Models.LoginDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +28,7 @@ namespace CineApi.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _authService.LoginAsync(loginDto);
+                var result = await _authService.Login(loginDto);
                 return Ok(result);
             }
             catch (UnauthorizedAccessException ex)
@@ -35,7 +37,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
 
@@ -49,7 +51,7 @@ namespace CineApi.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _authService.RegisterAsync(registerDto);
+                var result = await _authService.Register(registerDto);
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
@@ -58,28 +60,35 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
 
         [HttpGet("user/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetUser(int id)
+        public async Task<IActionResult> GetProfile(int id)
         {
             try
             {
-                var user = await _authService.GetUserByIdAsync(id);
+                var currentUserId = int.Parse(User.FindFirst("id")?.Value ?? "0");
+                var currentUserRole = User.FindFirst("role")?.Value;
 
+                if (currentUserId != id && currentUserRole != UserRoles.SysAdmin)
+                {
+                    return Forbid(AuthValidationMessages.OnlyViewOwnProfile());
+                }
+
+                var user = await _authService.GetUserById(id);
                 if (user == null)
                 {
-                    return NotFound(new { message = "User not found" });
+                    return NotFound(new { message = AuthValidationMessages.UserNotFound() });
                 }
 
                 return Ok(user);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error" });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
             }
         }
     }

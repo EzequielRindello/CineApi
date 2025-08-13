@@ -1,68 +1,121 @@
 # Movie App Backend
-API REST para gestión de funciones de películas con PostgreSQL y Entity Framework Core.
 
-## Configuración del proyecto
+REST API for managing movie screenings using PostgreSQL and Entity Framework Core. Supports JWT authentication and role-based access control.
 
-### 1. Clonar el repositorio
-### 2. Levantar la base de datos PostgreSQL
+## Project Setup
+
+### 1. Clone the repository
 
 ```bash
-# Levantar el contenedor de PostgreSQL
+git clone https://github.com/your-username/movie-app-backend.git
+cd movie-app-backend
+
+# Start the PostgreSQL container
 docker-compose up -d
 
-# Verificar que el contenedor esté corriendo
+# Check that the container is running
 docker-compose ps
-```
 
-### 3. Instalar las dependencias de .NET
-
-```bash
-# Restaurar paquetes NuGet
+# Restore NuGet packages
 dotnet restore
-```
 
-### 4. Crear y aplicar migraciones
-
-```bash
-# Instalar la herramienta EF Core (si no está instalada)
+# Install EF Core CLI if not already installed
 dotnet tool install --global dotnet-ef
 
-# Crear la primera migración
+# Create the initial migration
 dotnet ef migrations add InitialCreate
 
-# Aplicar las migraciones a la base de datos
+# Apply the migration to the database
 dotnet ef database update
 ```
 
-## Endpoints disponibles
+⚠️ If the project already contains migrations, you may not need to run these commands.
 
-### Funciones de películas
+⚠️ If you are having problesms witn the migrations, please run these commands in order.
+```
+  dotnet ef migrations remove
+  dotnet ef database drop
+  dotnet ef migrations add Initial 
+  dotnet ef database update
+```
 
-- `GET /api/functions` - Obtener todas las funciones
-- `GET /api/functions/{id}` - Obtener una función por ID
-- `POST /api/functions` - Crear una nueva función
-- `PUT /api/functions/{id}` - Actualizar una función
-- `DELETE /api/functions/{id}` - Eliminar una función
+## Backend base URL
 
-### Películas (solo lectura)
+```
+https://localhost:5001/api
+```
 
-- `GET /api/movies` - Obtener todas las películas
-- `GET /api/movies/{id}` - Obtener una película por ID
+CORS is enabled for:
 
-## Auth 
+- http://localhost:3000 (Create React App)
+- http://localhost:5173 (Vite)
 
-- `GET /api/auth//{id}` - 
-- `POST /api/auth` - 
-- `PUT /api/auth/{id}` - 
-- `DELETE /api/auth/{id}` - 
+## Implemented Features
 
-## Ejemplo de uso
+### User Roles
 
-### Crear una función
+There are three user roles:
+
+| Role         | Permissions                                              |
+|--------------|----------------------------------------------------------|
+| Sys Admin    | Full access. Can manage users, movies, and screenings.   |
+| Cinema Admin | Can manage movies and screenings.                        |
+| Regular User | Can reserve up to 4 seats per screening.                 |
+
+- All users log in through the same login form.
+- Only regular users can register.
+- Sys Admin is responsible for creating other admins and users via the user management module.
+
+## Available Endpoints
+
+### Auth
+
+- `POST /api/auth/login` – Login
+- `POST /api/auth/register` – Register
+- `GET /api/auth/user{id}` – Get user by ID
+
+### User
+
+- `GET /api/user` – List all users (Sys Admin)
+- `POST /api/user` – Create user (Sys Admin)
+- `PUT /api/user/{id}` – Update user (Sys Admin)
+- `DELETE /api/user/{id}` – Delete user (Sys Admin)
+
+### Screenings
+
+- `GET /api/functions` – Get all screenings
+- `GET /api/functions/{id}` – Get screening by ID
+- `POST /api/functions` – Create a screening (Sys/Cinema Admin)
+- `PUT /api/functions/{id}` – Update screening (Sys/Cinema Admin)
+- `DELETE /api/functions/{id}` – Delete screening (Sys/Cinema Admin)
+
+### Movies
+
+- `GET /api/movies` – List all movies
+- `GET /api/movies/{id}` – Get movie by ID
+- `POST /api/movies` – Create a movie (Sys/Cinema Admin)
+- `PUT /api/movies/{id}` – Update movie (Sys/Cinema Admin)
+- `DELETE /api/movies/{id}` – Delete movie (Sys/Cinema Admin)
+
+### Directors
+
+- `GET /api/directors/` – Get directors
+- `GET /api/directors/{directorId}` – Get director by Id
+- 
+### Reservations (Regular Users)
+
+- `POST /api/reservations` – Reserve seats (max 4 per screening)
+- `GET /api/reservations/user/{userId}` – Get user reservations
+- `DELETE /api/reservations/{id}` – Cancel reservation
+
+## Usage Example
+
+### Create a screening
 
 ```bash
 curl -X POST https://localhost:5001/api/functions \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_token>" \
   -d '{
     "date": "2025-07-03T00:00:00Z",
     "time": "14:30:00",
@@ -70,11 +123,3 @@ curl -X POST https://localhost:5001/api/functions \
     "movieId": 1
 }'
 ```
-
-## Configuración para el Frontend
-
-El backend está configurado para aceptar peticiones CORS desde:
-- `http://localhost:3000` (Create React App)
-- `http://localhost:5173` (Vite)
-
-Para conectar tu frontend React, usa la URL base: `https://localhost:5001/api`

@@ -9,19 +9,20 @@ namespace CineApi.Entity
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required][MaxLength(300)] public string Title { get; set; }
+        public required string Title { get; set; }
 
-        [Required][MaxLength(50)] public string Type { get; set; } // "international" or "national"
+        public required string Type { get; set; } // "international" or "national"
 
-        [Required] public string Poster { get; set; }
+        public required string Poster { get; set; }
 
-        [Required][MaxLength(1000)] public string Description { get; set; }
+        public required string Description { get; set; }
 
-        public int DirectorId { get; set; }
+        [ForeignKey("DirectorId")]
+        public required int DirectorId { get; set; }
 
         // Navigation property
-        public Director Director { get; set; }
+        public Director? Director { get; set; }
 
-        public ICollection<MovieFunction> MovieFunctions { get; set; }
+        public List<MovieFunction>? MovieFunctions { get; set; }
     }
 }

@@ -9,15 +9,23 @@ namespace CineApi.Entity
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required] public DateTime Date { get; set; }
+        public required DateTime Date { get; set; }
 
-        [Required] public TimeSpan Time { get; set; }
+        public required TimeSpan Time { get; set; }
 
-        [Required][Column(TypeName = "decimal(18,2)")] public decimal Price { get; set; }
+        public required decimal Price { get; set; }
 
-        public int MovieId { get; set; }
+        [ForeignKey("MovieId")]
+        public required int MovieId { get; set; }
 
         // Navigation property
-        public Movie Movie { get; set; }
+        public Movie? Movie { get; set; }
+
+        public int TotalCapacity { get; set; } = 50;
+
+        public List<Reservation> Reservations { get; set; } = new List<Reservation>();
+
+        [NotMapped]
+        public int AvailableSeats => TotalCapacity - Reservations.Sum(r => r.TicketQuantity);
     }
 }
