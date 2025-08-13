@@ -130,11 +130,11 @@ namespace CineApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> CancelReservation(int id)
+        public async Task<IActionResult> DeleteReservation(int id)
         {
             try
             {
-                var success = await _reservationService.CancelReservation(id, CurrentUserId);
+                var success = await _reservationService.DeleteReservation(id, CurrentUserId);
                 if (!success)
                 {
                     return NotFound(new { message = ReservationValidationMessages.ReservationNotFound() });

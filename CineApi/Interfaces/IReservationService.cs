@@ -9,6 +9,6 @@ namespace CineApi.Interfaces
         Task<IEnumerable<ReservationDto>> GetAllReservations();
         Task<ReservationDto?> GetReservationById(int id);
         Task<UpdateReservationDto> UpdateReservation(int id, UpdateReservationDto updateReservationDto, int userId);
-        Task<bool> CancelReservation(int id, int userId);
+        Task<bool> DeleteReservation(int id, int userId);
     }
 }

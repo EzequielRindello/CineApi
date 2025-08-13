@@ -13,7 +13,7 @@ namespace CineApi.Entity
         public int UserId { get; set; }
 
 
-        [ForeignKey(nameof(MovieFunction))]
+        [ForeignKey("MovieFunctionId")]
         public required int MovieFunctionId { get; set; }
 
         public required int TicketQuantity { get; set; }

@@ -149,7 +149,7 @@ namespace CineApi.Services
             return reservation != null ? DataMapper.MapToReservationDto(reservation) : null;
         }
 
-        public async Task<bool> CancelReservation(int id, int userId)
+        public async Task<bool> DeleteReservation(int id, int userId)
         {
             var reservation = await _context.Reservations
                 .Include(r => r.MovieFunction)

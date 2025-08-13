@@ -17,6 +17,7 @@ namespace CineApi.Entity
 
         public required string Description { get; set; }
 
+        [ForeignKey("DirectorId")]
         public required int DirectorId { get; set; }
 
         // Navigation property

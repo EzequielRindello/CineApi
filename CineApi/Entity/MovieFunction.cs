@@ -15,7 +15,7 @@ namespace CineApi.Entity
 
         public required decimal Price { get; set; }
 
-        [ForeignKey(nameof(Movie))]
+        [ForeignKey("MovieId")]
         public required int MovieId { get; set; }
 
         // Navigation property
