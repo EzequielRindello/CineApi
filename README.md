@@ -31,7 +31,7 @@ dotnet ef database update
 
 ⚠️ If the project already contains migrations, you may not need to run these commands.
 
-⚠️ If you are having problesms witn the migrations, please run these commands in order.
+⚠️ If you are having problems with the migrations, please run these commands in order.
 ```
   dotnet ef migrations remove
   dotnet ef database drop
