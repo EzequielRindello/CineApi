@@ -25,7 +25,7 @@ namespace CineApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<MovieFunctionDto>> GetFunctionById(int id)
+        public async Task<ActionResult<MovieFunctionDto>> GetFunctionById([FromRoute] int id)
         {
             var function = await _movieFunctionService.GetFunctionById(id);
             if (function == null)
@@ -35,7 +35,7 @@ namespace CineApi.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<MovieFunctionDto>> CreateFunction(CreateMovieFunctionRequest request)
+        public async Task<ActionResult<MovieFunctionDto>> CreateFunction([FromBody] CreateMovieFunctionRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -52,7 +52,7 @@ namespace CineApi.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<ActionResult<MovieFunctionDto>> UpdateFunction(int id, UpdateMovieFunctionRequest request)
+        public async Task<ActionResult<MovieFunctionDto>> UpdateFunction([FromRoute] int id, [FromBody] UpdateMovieFunctionRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -71,7 +71,7 @@ namespace CineApi.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
-        public async Task<ActionResult> DeleteFunction(int id)
+        public async Task<ActionResult> DeleteFunction([FromRoute] int id)
         {
             var deleted = await _movieFunctionService.DeleteFunction(id);
             if (!deleted)

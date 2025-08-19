@@ -25,7 +25,7 @@ namespace MovieApp.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<MovieDto>> GetMovieById(int id)
+        public async Task<ActionResult<MovieDto>> GetMovieById([FromRoute] int id)
         {
             var movie = await _movieService.GetMovieById(id);
             if (movie == null)
@@ -35,7 +35,7 @@ namespace MovieApp.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<MovieDto>> CreateMovie(CreateMovieDto request)
+        public async Task<ActionResult<MovieDto>> CreateMovie([FromBody] CreateMovieDto request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -52,7 +52,7 @@ namespace MovieApp.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> UpdateMovie(int id, UpdateMovieDto request)
+        public async Task<IActionResult> UpdateMovie([FromRoute] int id, UpdateMovieDto request)
         {
             if (id != request.Id)
                 return BadRequest(MovieValidationMessage.MovieIdMismatch());
@@ -73,7 +73,7 @@ namespace MovieApp.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
-        public async Task<IActionResult> DeleteMovie(int id)
+        public async Task<IActionResult> DeleteMovie([FromRoute] int id)
         {
             try
             {

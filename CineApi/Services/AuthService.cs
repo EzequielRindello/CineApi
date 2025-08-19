@@ -48,7 +48,7 @@ namespace CineApi.Services
 
         public async Task<AuthResponseDto> Register(RegisterDto registerDto)
         {
-            if (await UserExists(registerDto.Email))
+            if (await AuthHelper.UserExists(registerDto.Email, _context))
             {
                 throw new InvalidOperationException(AuthValidationMessages.UserAlreadyExists());
             }
@@ -81,20 +81,12 @@ namespace CineApi.Services
             };
         }
 
-        public async Task<bool> UserExists(string email)
-        {
-            return await _context.Users
-                .AsNoTracking()
-                .AnyAsync(u => u.Email == email);
-        }
-
         public async Task<UserDto> GetUserById(int id)
         {
             var user = await _context.Users
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == id);
-
-            if (user == null) return null;
+                .FirstOrDefaultAsync(u => u.Id == id)
+                ?? throw new InvalidOperationException(AuthValidationMessages.UserNotFound());
 
             return new UserDto
             {

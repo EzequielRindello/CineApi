@@ -23,7 +23,7 @@ namespace CineApi.Controllers
         private string CurrentUserRole => User.FindFirst("role")?.Value ?? "";
 
         [HttpPost]
-        public async Task<IActionResult> CreateReservation(CreateReservationDto request)
+        public async Task<IActionResult> CreateReservation([FromBody] CreateReservationDto request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -43,7 +43,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
@@ -57,7 +57,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
@@ -72,12 +72,12 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetReservation(int id)
+        public async Task<IActionResult> GetReservation([FromRoute] int id)
         {
             try
             {
@@ -99,12 +99,12 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateReservation(int id, UpdateReservationDto request)
+        public async Task<IActionResult> UpdateReservation([FromRoute] int id, [FromBody] UpdateReservationDto request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -125,12 +125,12 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteReservation(int id)
+        public async Task<IActionResult> DeleteReservation([FromRoute] int id)
         {
             try
             {
@@ -148,7 +148,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = ReservationValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
     }

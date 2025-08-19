@@ -35,7 +35,7 @@ namespace CineApi.Services
 
         public async Task<UserDto> CreateUser(CreateUserDto createUserDto)
         {
-            if (await UserExists(createUserDto.Email))
+            if (await AuthHelper.UserExists(createUserDto.Email, _context))
             {
                 throw new InvalidOperationException(AuthValidationMessages.UserAlreadyExists());
             }
@@ -69,8 +69,8 @@ namespace CineApi.Services
                 .Where(u => u.Id == id || u.Email == updateUserDto.Email)
                 .ToListAsync();
 
-            var user = users.FirstOrDefault(u => u.Id == id);
-            if (user == null) return null;
+            var user = users.FirstOrDefault(u => u.Id == id) ??
+                throw new InvalidOperationException(AuthValidationMessages.UserNotFound());
 
             var emailConflict = users.Any(u => u.Email == updateUserDto.Email && u.Id != id);
             if (emailConflict)
@@ -103,13 +103,6 @@ namespace CineApi.Services
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return true;
-        }
-
-        public async Task<bool> UserExists(string email)
-        {
-            return await _context.Users
-                .AsNoTracking()
-                .AnyAsync(u => u.Email == email);
         }
     }
 }

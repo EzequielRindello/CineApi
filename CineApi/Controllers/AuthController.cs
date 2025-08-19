@@ -37,7 +37,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
@@ -60,13 +60,13 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
         [HttpGet("user/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetProfile(int id)
+        public async Task<IActionResult> GetProfile([FromRoute] int id)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
     }

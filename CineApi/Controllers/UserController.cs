@@ -29,13 +29,13 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
         [HttpPost]
         [Authorize(Roles = UserRoles.SysAdmin)]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto request)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace CineApi.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _userService.CreateUser(createUserDto);
+                var result = await _userService.CreateUser(request);
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
@@ -53,13 +53,13 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.SysAdmin)]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto updateUserDto)
+        public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] UpdateUserDto request)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace CineApi.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var result = await _userService.UpdateUser(id, updateUserDto);
+                var result = await _userService.UpdateUser(id, request);
                 if (result == null)
                 {
                     return NotFound(new { message = AuthValidationMessages.UserNotFound() });
@@ -78,13 +78,13 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = UserRoles.SysAdmin)]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
             try
             {
@@ -98,7 +98,7 @@ namespace CineApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError() });
+                return StatusCode(500, new { message = AuthValidationMessages.InternalServerError(), details = ex.Message });
             }
         }
     }

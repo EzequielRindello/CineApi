@@ -6,7 +6,6 @@ namespace CineApi.Interfaces
     {
         Task<AuthResponseDto> Login(LoginDto loginDto);
         Task<AuthResponseDto> Register(RegisterDto registerDto);
-        Task<bool> UserExists(string email);
         Task<UserDto> GetUserById(int id);
     }
 }

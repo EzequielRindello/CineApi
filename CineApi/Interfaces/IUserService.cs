@@ -8,6 +8,5 @@ namespace CineApi.Interfaces
         Task<UserDto> CreateUser(CreateUserDto createUserDto);
         Task<UserDto> UpdateUser(int id, UpdateUserDto updateUserDto);
         Task<bool> DeleteUser(int id);
-        Task<bool> UserExists(string email);
     }
 }

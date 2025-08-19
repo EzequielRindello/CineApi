@@ -45,7 +45,9 @@ namespace CineApi.Services
 
         public async Task<MovieFunctionDto> CreateFunction(CreateMovieFunctionRequest request)
         {
-            var movieExists = await _context.Movies.FirstOrDefaultAsync(m => m.Id == request.MovieId) ?? throw new ArgumentException(MovieValidationMessage.MovieNotfound());
+            var movieExists = await _context.Movies.FirstOrDefaultAsync(m => m.Id == request.MovieId)
+                ?? throw new ArgumentException(MovieValidationMessage.MovieNotfound());
+
             var function = new MovieFunction
             {
                 Date = DateTime.SpecifyKind(request.Date, DateTimeKind.Utc),

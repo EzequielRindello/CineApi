@@ -22,10 +22,8 @@ namespace CineApi.Services
         {
             var movieFunction = await _context.MovieFunctions
                 .Include(mf => mf.Reservations)
-                .FirstOrDefaultAsync(mf => mf.Id == request.MovieFunctionId);
-
-            if (movieFunction == null)
-                throw new ArgumentException(FunctionValidationMessages.MovieFunctionNotFound());
+                .FirstOrDefaultAsync(mf => mf.Id == request.MovieFunctionId)
+                ?? throw new ArgumentException(FunctionValidationMessages.MovieFunctionNotFound());
 
             var availableSeats = movieFunction.AvailableSeats;
             if (availableSeats < request.TicketQuantity)
@@ -73,10 +71,8 @@ namespace CineApi.Services
         {
             var reservation = await _context.Reservations
                 .Include(r => r.MovieFunction)
-                .FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
-
-            if (reservation == null)
-                throw new ArgumentException(FunctionValidationMessages.ReservationNotFound());
+                .FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId)
+                ?? throw new ArgumentException(FunctionValidationMessages.ReservationNotFound());
 
             var existingTicketsForFunction = await _context.Reservations
                 .Where(r => r.UserId == userId && r.MovieFunctionId == reservation.MovieFunctionId && r.Id != id)

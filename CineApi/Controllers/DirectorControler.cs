@@ -23,7 +23,7 @@ namespace CineApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<DirectorDto>> GetDirectorById(int id)
+        public async Task<ActionResult<DirectorDto>> GetDirectorById([FromRoute] int id)
         {
             var director = await _directorService.GetDirectorById(id);
             if (director == null)
